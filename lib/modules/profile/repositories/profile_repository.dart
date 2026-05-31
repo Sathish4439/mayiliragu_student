@@ -1,0 +1,30 @@
+import 'package:dio/dio.dart';
+import '../../../core/constants/api_constants.dart';
+import '../../../core/network/api_client.dart';
+
+class ProfileRepository {
+  final ApiClient _apiClient;
+
+  ProfileRepository(this._apiClient);
+
+  Future<Response> getProfile() async {
+    return await _apiClient.get(ApiConstants.profile);
+  }
+
+  Future<Response> updateName(String name) async {
+    return await _apiClient.put(
+      '${ApiConstants.profile}/name',
+      data: {'name': name},
+    );
+  }
+
+  Future<Response> changePassword(String currentPassword, String newPassword) async {
+    return await _apiClient.put(
+      '${ApiConstants.profile}/password',
+      data: {
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      },
+    );
+  }
+}
