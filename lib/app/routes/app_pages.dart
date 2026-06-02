@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import '../../modules/auth/bindings/auth_binding.dart';
 import '../../modules/auth/views/auth_view.dart';
+import '../../modules/onboarding/bindings/onboarding_binding.dart';
+import '../../modules/onboarding/views/onboarding_view.dart';
 import '../../modules/dashboard/bindings/dashboard_binding.dart';
 import '../../modules/dashboard/views/dashboard_view.dart';
 import '../../modules/courses/bindings/course_binding.dart';
@@ -17,6 +19,11 @@ class AppPages {
   static const INITIAL = Routes.LOGIN;
 
   static final routes = [
+    GetPage(
+      name: Routes.ONBOARDING,
+      page: () => const OnboardingView(),
+      binding: OnboardingBinding(),
+    ),
     GetPage(
       name: Routes.LOGIN,
       page: () => const AuthView(),

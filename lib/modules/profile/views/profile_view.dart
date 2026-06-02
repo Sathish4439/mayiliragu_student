@@ -11,13 +11,12 @@ class ProfileView extends GetView<ProfileController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Profile', style: AppTextStyles.heading.copyWith(fontSize: 20)),
+        title: Text(
+          'My Profile',
+          style: AppTextStyles.heading.copyWith(fontSize: 20),
+        ),
         backgroundColor: AppColors.backgroundStart,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-          onPressed: () => Get.back(),
-        ),
       ),
       body: Container(
         height: double.infinity,
@@ -48,7 +47,9 @@ class ProfileView extends GetView<ProfileController> {
                 Card(
                   color: AppColors.cardBg,
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Row(
@@ -56,7 +57,11 @@ class ProfileView extends GetView<ProfileController> {
                         CircleAvatar(
                           radius: 32,
                           backgroundColor: AppColors.accent.withAlpha(40),
-                          child: const Icon(Icons.person, size: 40, color: AppColors.primary),
+                          child: const Icon(
+                            Icons.person,
+                            size: 40,
+                            color: AppColors.primary,
+                          ),
                         ),
                         const SizedBox(width: 20),
                         Expanded(
@@ -65,16 +70,23 @@ class ProfileView extends GetView<ProfileController> {
                             children: [
                               Text(
                                 controller.userName.value,
-                                style: AppTextStyles.heading.copyWith(fontSize: 20),
+                                style: AppTextStyles.heading.copyWith(
+                                  fontSize: 20,
+                                ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 controller.userEmail.value,
-                                style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+                                style: AppTextStyles.body.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
                               ),
                               const SizedBox(height: 4),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppColors.accent.withAlpha(30),
                                   borderRadius: BorderRadius.circular(20),
@@ -100,12 +112,17 @@ class ProfileView extends GetView<ProfileController> {
                 // Update Display Name Section
                 Text(
                   'Account Settings',
-                  style: AppTextStyles.subheading.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  style: AppTextStyles.subheading.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Card(
                   color: AppColors.cardBg,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
@@ -113,7 +130,9 @@ class ProfileView extends GetView<ProfileController> {
                       children: [
                         Text(
                           'Update Display Name',
-                          style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
+                          style: AppTextStyles.body.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 12),
                         TextField(
@@ -121,7 +140,10 @@ class ProfileView extends GetView<ProfileController> {
                           style: const TextStyle(color: AppColors.textPrimary),
                           decoration: InputDecoration(
                             labelText: 'Full Name',
-                            prefixIcon: const Icon(Icons.person_outline, color: AppColors.textSecondary),
+                            prefixIcon: const Icon(
+                              Icons.person_outline,
+                              color: AppColors.textSecondary,
+                            ),
                             filled: true,
                             fillColor: AppColors.textPrimary.withAlpha(12),
                             border: OutlineInputBorder(
@@ -135,20 +157,29 @@ class ProfileView extends GetView<ProfileController> {
                           width: double.infinity,
                           height: 48,
                           child: ElevatedButton(
-                            onPressed: controller.isUpdatingName.value ? null : controller.updateName,
+                            onPressed: controller.isUpdatingName.value
+                                ? null
+                                : controller.updateName,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.accentDark,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                             child: controller.isUpdatingName.value
                                 ? const SizedBox(
                                     height: 20,
                                     width: 20,
-                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
                                   )
                                 : Text(
                                     'Save Changes',
-                                    style: AppTextStyles.button.copyWith(color: Colors.white),
+                                    style: AppTextStyles.button.copyWith(
+                                      color: Colors.white,
+                                    ),
                                   ),
                           ),
                         ),
@@ -161,12 +192,17 @@ class ProfileView extends GetView<ProfileController> {
                 // Change Password Section
                 Text(
                   'Security Settings',
-                  style: AppTextStyles.subheading.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  style: AppTextStyles.subheading.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Card(
                   color: AppColors.cardBg,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
@@ -174,7 +210,9 @@ class ProfileView extends GetView<ProfileController> {
                       children: [
                         Text(
                           'Change Password',
-                          style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
+                          style: AppTextStyles.body.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         TextField(
@@ -183,13 +221,19 @@ class ProfileView extends GetView<ProfileController> {
                           style: const TextStyle(color: AppColors.textPrimary),
                           decoration: InputDecoration(
                             labelText: 'Current Password',
-                            prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
+                            prefixIcon: const Icon(
+                              Icons.lock_outline,
+                              color: AppColors.textSecondary,
+                            ),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                controller.obscureCurrentPassword.value ? Icons.visibility_off : Icons.visibility,
+                                controller.obscureCurrentPassword.value
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
                                 color: AppColors.textSecondary,
                               ),
-                              onPressed: () => controller.obscureCurrentPassword.toggle(),
+                              onPressed: () =>
+                                  controller.obscureCurrentPassword.toggle(),
                             ),
                             filled: true,
                             fillColor: AppColors.textPrimary.withAlpha(12),
@@ -206,13 +250,19 @@ class ProfileView extends GetView<ProfileController> {
                           style: const TextStyle(color: AppColors.textPrimary),
                           decoration: InputDecoration(
                             labelText: 'New Password',
-                            prefixIcon: const Icon(Icons.vpn_key_outlined, color: AppColors.textSecondary),
+                            prefixIcon: const Icon(
+                              Icons.vpn_key_outlined,
+                              color: AppColors.textSecondary,
+                            ),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                controller.obscureNewPassword.value ? Icons.visibility_off : Icons.visibility,
+                                controller.obscureNewPassword.value
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
                                 color: AppColors.textSecondary,
                               ),
-                              onPressed: () => controller.obscureNewPassword.toggle(),
+                              onPressed: () =>
+                                  controller.obscureNewPassword.toggle(),
                             ),
                             filled: true,
                             fillColor: AppColors.textPrimary.withAlpha(12),
@@ -229,13 +279,19 @@ class ProfileView extends GetView<ProfileController> {
                           style: const TextStyle(color: AppColors.textPrimary),
                           decoration: InputDecoration(
                             labelText: 'Confirm New Password',
-                            prefixIcon: const Icon(Icons.vpn_key_outlined, color: AppColors.textSecondary),
+                            prefixIcon: const Icon(
+                              Icons.vpn_key_outlined,
+                              color: AppColors.textSecondary,
+                            ),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                controller.obscureConfirmPassword.value ? Icons.visibility_off : Icons.visibility,
+                                controller.obscureConfirmPassword.value
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
                                 color: AppColors.textSecondary,
                               ),
-                              onPressed: () => controller.obscureConfirmPassword.toggle(),
+                              onPressed: () =>
+                                  controller.obscureConfirmPassword.toggle(),
                             ),
                             filled: true,
                             fillColor: AppColors.textPrimary.withAlpha(12),
@@ -250,20 +306,29 @@ class ProfileView extends GetView<ProfileController> {
                           width: double.infinity,
                           height: 48,
                           child: ElevatedButton(
-                            onPressed: controller.isChangingPassword.value ? null : controller.changePassword,
+                            onPressed: controller.isChangingPassword.value
+                                ? null
+                                : controller.changePassword,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.accentDark,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                             child: controller.isChangingPassword.value
                                 ? const SizedBox(
                                     height: 20,
                                     width: 20,
-                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
                                   )
                                 : Text(
                                     'Update Password',
-                                    style: AppTextStyles.button.copyWith(color: Colors.white),
+                                    style: AppTextStyles.button.copyWith(
+                                      color: Colors.white,
+                                    ),
                                   ),
                           ),
                         ),

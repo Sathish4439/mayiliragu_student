@@ -15,10 +15,15 @@ void main() async {
 
   final token = await storage.getAccessToken();
   final role = await storage.getUserRole();
+  final hasSeenOnboarding = await storage.hasSeenOnboarding();
 
-  String initialRoute = AppPages.INITIAL;
-  if (token != null && role == 'STUDENT') {
-    initialRoute = Routes.DASHBOARD;
+  String initialRoute = Routes.ONBOARDING;
+  if (hasSeenOnboarding) {
+    if (token != null && role == 'STUDENT') {
+      initialRoute = Routes.DASHBOARD;
+    } else {
+      initialRoute = Routes.LOGIN;
+    }
   }
 
   runApp(MyApp(initialRoute: initialRoute));

@@ -1,5 +1,6 @@
 abstract class Routes {
   Routes._();
+  static const ONBOARDING = '/onboarding';
   static const LOGIN = '/login';
   static const DASHBOARD = '/dashboard';
   static const COURSES = '/courses';
