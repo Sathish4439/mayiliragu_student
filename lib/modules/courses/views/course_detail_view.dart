@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/course_image.dart';
 import '../repositories/course_repository.dart';
 import '../models/course_detail_model.dart';
 import '../../../app/routes/app_routes.dart';
@@ -169,13 +170,20 @@ class _CourseDetailViewState extends State<CourseDetailView> {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            thumbnail.isNotEmpty
-                ? Image.network(thumbnail, fit: BoxFit.cover)
-                : const Icon(
-                    Icons.image,
-                    size: 80,
-                    color: AppColors.textSecondary,
-                  ),
+            CourseImage(
+              imageUrl: thumbnail,
+              fit: BoxFit.cover,
+              placeholder: const Icon(
+                Icons.image,
+                size: 80,
+                color: AppColors.textSecondary,
+              ),
+              errorWidget: const Icon(
+                Icons.broken_image,
+                size: 80,
+                color: AppColors.textSecondary,
+              ),
+            ),
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(

@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/widgets/course_image.dart';
 import '../../../app/routes/app_routes.dart';
 import '../controllers/dashboard_controller.dart';
 import '../models/dashboard_model.dart';
+import '../../courses/views/course_detail_view.dart';
 
 class DashboardHomeView extends GetView<DashboardController> {
   const DashboardHomeView({super.key});
@@ -65,6 +68,12 @@ class DashboardHomeView extends GetView<DashboardController> {
                   _buildHeader(userName),
                   const SizedBox(height: 24),
 
+                  // Banners Carousel
+                  if (data?.banners != null && data!.banners.isNotEmpty) ...[
+                    BannerCarousel(banners: data.banners),
+                    const SizedBox(height: 24),
+                  ],
+
                   // 2. Quick Actions Section
                   _buildSectionTitle(AppStrings.quickActions),
                   const SizedBox(height: 12),
@@ -72,7 +81,8 @@ class DashboardHomeView extends GetView<DashboardController> {
                   const SizedBox(height: 24),
 
                   // 3. Enrolled Courses Section
-                  if (data?.enrolledCourses != null && data!.enrolledCourses.isNotEmpty) ...[
+                  if (data?.enrolledCourses != null &&
+                      data!.enrolledCourses.isNotEmpty) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -210,13 +220,21 @@ class DashboardHomeView extends GetView<DashboardController> {
           AppStrings.actionPracticeTest,
           () => Get.toNamed(Routes.COURSES),
         ),
-        _buildActionCard(Icons.newspaper, AppStrings.actionCurrentAffairs, () {}),
+        _buildActionCard(
+          Icons.newspaper,
+          AppStrings.actionCurrentAffairs,
+          () {},
+        ),
         _buildActionCard(
           Icons.menu_book,
           AppStrings.actionStudyMaterials,
           () => Get.toNamed(Routes.COURSES),
         ),
-        _buildActionCard(Icons.analytics_outlined, AppStrings.actionPerformance, () {}),
+        _buildActionCard(
+          Icons.analytics_outlined,
+          AppStrings.actionPerformance,
+          () {},
+        ),
       ],
     );
   }
@@ -285,7 +303,7 @@ class DashboardHomeView extends GetView<DashboardController> {
             ),
             child: InkWell(
               onTap: () {
-                Get.toNamed(Routes.LESSON_DETAIL, arguments: course.id);
+                Get.to(() => CourseDetailView(courseId: course.id));
               },
               borderRadius: BorderRadius.circular(16),
               child: Column(
@@ -301,14 +319,20 @@ class DashboardHomeView extends GetView<DashboardController> {
                         color: AppColors.lightLavender,
                         image: course.thumbnail.isNotEmpty
                             ? DecorationImage(
-                                image: NetworkImage(course.thumbnail),
+                                image: CourseImage.getProvider(
+                                  course.thumbnail,
+                                ),
                                 fit: BoxFit.cover,
                               )
                             : null,
                       ),
                       child: course.thumbnail.isEmpty
                           ? const Center(
-                              child: Icon(Icons.book, color: AppColors.brandPurple, size: 32),
+                              child: Icon(
+                                Icons.book,
+                                color: AppColors.brandPurple,
+                                size: 32,
+                              ),
                             )
                           : null,
                     ),
@@ -530,6 +554,205 @@ class DashboardHomeView extends GetView<DashboardController> {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class BannerCarousel extends StatefulWidget {
+  final List<BannerModel> banners;
+  const BannerCarousel({super.key, required this.banners});
+
+  @override
+  State<BannerCarousel> createState() => _BannerCarouselState();
+}
+
+class _BannerCarouselState extends State<BannerCarousel> {
+  late PageController _pageController;
+  int _currentPage = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 0);
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (!mounted || widget.banners.isEmpty) return;
+      if (_currentPage < widget.banners.length - 1) {
+        _currentPage++;
+      } else {
+        _currentPage = 0;
+      }
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.banners.isEmpty) return const SizedBox.shrink();
+
+    return SizedBox(
+      height: 160,
+      width: double.infinity,
+      child: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            itemCount: widget.banners.length,
+            itemBuilder: (context, index) {
+              final banner = widget.banners[index];
+              return GestureDetector(
+                onTap: () {
+                  if (banner.linkUrl != null && banner.linkUrl!.isNotEmpty) {
+                    Get.to(() => CourseDetailView(courseId: banner.linkUrl!));
+                  }
+                },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Image
+                        Image.network(
+                          banner.imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFFE1BEE7),
+                                    Color(0xFFCE93D8),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.broken_image_rounded,
+                                  color: Colors.white,
+                                  size: 40,
+                                ),
+                              ),
+                            );
+                          },
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              color: const Color(0xFFF5F5F5),
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.brandPurple,
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        // Dark Gradient Overlay for title readability
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.black.withOpacity(0.4),
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.2),
+                              ],
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                            ),
+                          ),
+                        ),
+
+                        // Text Title
+                        // Positioned(
+                        //   left: 16,
+                        //   bottom: 16,
+                        //   right: 16,
+                        //   child: Text(
+                        //     banner.title,
+                        //     maxLines: 2,
+                        //     overflow: TextOverflow.ellipsis,
+                        //     style: const TextStyle(
+                        //       color: Colors.white,
+                        //       fontSize: 16,
+                        //       fontWeight: FontWeight.w900,
+                        //       shadows: [
+                        //         Shadow(
+                        //           offset: Offset(0, 1),
+                        //           blurRadius: 4,
+                        //           color: Colors.black45,
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          // Page Indicators
+          if (widget.banners.length > 1)
+            Positioned(
+              bottom: 12,
+              right: 24,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(
+                  widget.banners.length,
+                  (index) => Container(
+                    width: _currentPage == index ? 16 : 6,
+                    height: 6,
+                    margin: const EdgeInsets.symmetric(horizontal: 2.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3),
+                      color: _currentPage == index
+                          ? Colors.white
+                          : Colors.white.withOpacity(0.5),
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );

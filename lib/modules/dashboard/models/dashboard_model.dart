@@ -1,10 +1,12 @@
 class DashboardModel {
+  final List<BannerModel> banners;
   final List<EnrolledCourse> enrolledCourses;
   final ContinueLearning? continueLearning;
   final List<RecentlyWatched> recentlyWatched;
   final UserProfile? profile;
 
   DashboardModel({
+    required this.banners,
     required this.enrolledCourses,
     this.continueLearning,
     required this.recentlyWatched,
@@ -12,6 +14,11 @@ class DashboardModel {
   });
 
   factory DashboardModel.fromJson(Map<String, dynamic> json, {UserProfile? profile}) {
+    final bannersList = json['banners'] as List? ?? [];
+    final List<BannerModel> banners = bannersList
+        .map((b) => BannerModel.fromJson(b as Map<String, dynamic>))
+        .toList();
+
     final coursesList = json['enrolledCourses'] as List? ?? [];
     final List<EnrolledCourse> courses = coursesList
         .map((c) => EnrolledCourse.fromJson(c as Map<String, dynamic>))
@@ -28,10 +35,40 @@ class DashboardModel {
         .toList();
 
     return DashboardModel(
+      banners: banners,
       enrolledCourses: courses,
       continueLearning: contLearn,
       recentlyWatched: recent,
       profile: profile,
+    );
+  }
+}
+
+class BannerModel {
+  final String id;
+  final String title;
+  final String imageUrl;
+  final String? linkUrl;
+  final bool isActive;
+  final int order;
+
+  BannerModel({
+    required this.id,
+    required this.title,
+    required this.imageUrl,
+    this.linkUrl,
+    required this.isActive,
+    required this.order,
+  });
+
+  factory BannerModel.fromJson(Map<String, dynamic> json) {
+    return BannerModel(
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      imageUrl: json['imageUrl'] as String? ?? '',
+      linkUrl: json['linkUrl'] as String?,
+      isActive: json['isActive'] as bool? ?? false,
+      order: json['order'] as int? ?? 0,
     );
   }
 }

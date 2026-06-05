@@ -19,4 +19,13 @@ class LessonRepository {
       },
     );
   }
+
+  Future<dio_instance.Response> markAsComplete(String lessonId) async {
+    return await _apiClient.post(
+      '/progress/complete',
+      data: {
+        'lessonId': lessonId,
+      },
+    );
+  }
 }

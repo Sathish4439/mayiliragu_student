@@ -336,6 +336,65 @@ class ProfileView extends GetView<ProfileController> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Get.dialog(
+                        AlertDialog(
+                          backgroundColor: AppColors.cardBg,
+                          title: Text(
+                            'Logout',
+                            style: AppTextStyles.heading.copyWith(fontSize: 18),
+                          ),
+                          content: Text(
+                            'Are you sure you want to logout?',
+                            style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Get.back(),
+                              child: Text(
+                                'Cancel',
+                                style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Get.back();
+                                controller.logout();
+                              },
+                              child: Text(
+                                'Logout',
+                                style: AppTextStyles.body.copyWith(
+                                  color: AppColors.error,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.logout, color: AppColors.error),
+                    label: Text(
+                      'Logout',
+                      style: AppTextStyles.button.copyWith(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.error, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
               ],
             ),
           );

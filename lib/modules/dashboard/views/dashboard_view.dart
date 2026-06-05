@@ -7,8 +7,10 @@ import '../controllers/dashboard_controller.dart';
 import 'dashboard_home_view.dart';
 import 'tests_placeholder_view.dart';
 import '../../courses/views/course_list_view.dart';
+import '../../courses/controllers/course_controller.dart';
 import 'progress_placeholder_view.dart';
 import '../../profile/views/profile_view.dart';
+import '../../profile/controllers/profile_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
@@ -65,6 +67,26 @@ class CustomNavBar extends StatelessWidget {
 
   const CustomNavBar({super.key, required this.navBarConfig});
 
+  void _onTabChanged(int index) {
+    switch (index) {
+      case 0:
+        if (Get.isRegistered<DashboardController>()) {
+          Get.find<DashboardController>().fetchDashboardData();
+        }
+        break;
+      case 2:
+        if (Get.isRegistered<CourseController>()) {
+          Get.find<CourseController>().fetchCourses();
+        }
+        break;
+      case 4:
+        if (Get.isRegistered<ProfileController>()) {
+          Get.find<ProfileController>().fetchProfile();
+        }
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -90,6 +112,7 @@ class CustomNavBar extends StatelessWidget {
           bool isActive = navBarConfig.selectedIndex == index;
           return _buildNavBarItem(item, isActive, () {
             navBarConfig.onItemSelected(index);
+            _onTabChanged(index);
           });
         }).toList(),
       ),

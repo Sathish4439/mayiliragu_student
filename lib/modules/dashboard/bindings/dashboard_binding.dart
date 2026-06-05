@@ -10,15 +10,15 @@ import '../controllers/dashboard_controller.dart';
 class DashboardBinding implements Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<DashboardRepository>(() => DashboardRepository());
-    Get.lazyPut<DashboardController>(() => DashboardController(Get.find<DashboardRepository>()));
+    Get.lazyPut<DashboardRepository>(() => DashboardRepository(), fenix: true);
+    Get.lazyPut<DashboardController>(() => DashboardController(Get.find<DashboardRepository>()), fenix: true);
 
     // Course Dependencies for Learn Tab
-    Get.lazyPut<CourseRepository>(() => CourseRepository(Get.find<ApiClient>()));
-    Get.lazyPut<CourseController>(() => CourseController(Get.find<CourseRepository>()));
+    Get.lazyPut<CourseRepository>(() => CourseRepository(Get.find<ApiClient>()), fenix: true);
+    Get.lazyPut<CourseController>(() => CourseController(Get.find<CourseRepository>()), fenix: true);
 
     // Profile Dependencies for More/Profile Tab
-    Get.lazyPut<ProfileRepository>(() => ProfileRepository(Get.find<ApiClient>()));
-    Get.lazyPut<ProfileController>(() => ProfileController(Get.find<ProfileRepository>()));
+    Get.lazyPut<ProfileRepository>(() => ProfileRepository(Get.find<ApiClient>()), fenix: true);
+    Get.lazyPut<ProfileController>(() => ProfileController(Get.find<ProfileRepository>()), fenix: true);
   }
 }
