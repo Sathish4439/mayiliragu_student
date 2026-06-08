@@ -5,7 +5,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../controllers/dashboard_controller.dart';
 import 'dashboard_home_view.dart';
-import 'tests_placeholder_view.dart';
+import '../../tests/views/tests_view.dart';
+import '../../tests/controllers/tests_controller.dart';
 import '../../courses/views/course_list_view.dart';
 import '../../courses/controllers/course_controller.dart';
 import 'progress_placeholder_view.dart';
@@ -27,7 +28,7 @@ class DashboardView extends GetView<DashboardController> {
           ),
         ),
         PersistentTabConfig(
-          screen: const TestsPlaceholderView(),
+          screen: const TestsView(),
           item: ItemConfig(
             icon: const Icon(Icons.assignment_outlined),
             title: AppStrings.tabTests,
@@ -72,6 +73,11 @@ class CustomNavBar extends StatelessWidget {
       case 0:
         if (Get.isRegistered<DashboardController>()) {
           Get.find<DashboardController>().fetchDashboardData();
+        }
+        break;
+      case 1:
+        if (Get.isRegistered<TestsController>()) {
+          Get.find<TestsController>().fetchTests();
         }
         break;
       case 2:

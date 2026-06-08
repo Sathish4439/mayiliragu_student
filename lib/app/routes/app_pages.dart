@@ -11,6 +11,12 @@ import '../../modules/lessons/bindings/lesson_binding.dart';
 import '../../modules/lessons/views/lesson_detail_view.dart';
 import '../../modules/profile/bindings/profile_binding.dart';
 import '../../modules/profile/views/profile_view.dart';
+import '../../modules/tests/bindings/test_runner_binding.dart';
+import '../../modules/tests/views/test_runner_view.dart';
+import '../../modules/tests/bindings/test_results_binding.dart';
+import '../../modules/tests/views/test_results_view.dart';
+import '../../modules/tests/bindings/test_solutions_binding.dart';
+import '../../modules/tests/views/test_solutions_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -48,6 +54,21 @@ class AppPages {
       name: Routes.PROFILE,
       page: () => const ProfileView(),
       binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: Routes.TEST_RUNNER,
+      page: () => const TestRunnerView(),
+      binding: TestRunnerBinding(),
+    ),
+    GetPage(
+      name: Routes.TEST_RESULTS,
+      page: () => const TestResultsView(),
+      binding: TestResultsBinding(),
+    ),
+    GetPage(
+      name: Routes.TEST_SOLUTIONS,
+      page: () => const TestSolutionsView(),
+      binding: TestSolutionsBinding(),
     ),
   ];
 }

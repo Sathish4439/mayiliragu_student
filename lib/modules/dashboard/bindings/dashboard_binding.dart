@@ -6,12 +6,18 @@ import '../../profile/controllers/profile_controller.dart';
 import '../../profile/repositories/profile_repository.dart';
 import '../repositories/dashboard_repository.dart';
 import '../controllers/dashboard_controller.dart';
+import '../../tests/controllers/tests_controller.dart';
+import '../../tests/repositories/tests_repository.dart';
 
 class DashboardBinding implements Bindings {
   @override
   void dependencies() {
     Get.lazyPut<DashboardRepository>(() => DashboardRepository(), fenix: true);
     Get.lazyPut<DashboardController>(() => DashboardController(Get.find<DashboardRepository>()), fenix: true);
+
+    // Tests Dependencies for Tests Tab
+    Get.lazyPut<TestsRepository>(() => TestsRepository(Get.find<ApiClient>()), fenix: true);
+    Get.lazyPut<TestsController>(() => TestsController(Get.find<TestsRepository>()), fenix: true);
 
     // Course Dependencies for Learn Tab
     Get.lazyPut<CourseRepository>(() => CourseRepository(Get.find<ApiClient>()), fenix: true);
