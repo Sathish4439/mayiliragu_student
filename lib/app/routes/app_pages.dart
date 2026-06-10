@@ -17,6 +17,8 @@ import '../../modules/tests/bindings/test_results_binding.dart';
 import '../../modules/tests/views/test_results_view.dart';
 import '../../modules/tests/bindings/test_solutions_binding.dart';
 import '../../modules/tests/views/test_solutions_view.dart';
+import '../../modules/current_affairs/bindings/current_affairs_binding.dart';
+import '../../modules/current_affairs/views/current_affairs_dashboard_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -69,6 +71,11 @@ class AppPages {
       name: Routes.TEST_SOLUTIONS,
       page: () => const TestSolutionsView(),
       binding: TestSolutionsBinding(),
+    ),
+    GetPage(
+      name: Routes.CURRENT_AFFAIRS,
+      page: () => const CurrentAffairsDashboardView(),
+      binding: CurrentAffairsBinding(),
     ),
   ];
 }

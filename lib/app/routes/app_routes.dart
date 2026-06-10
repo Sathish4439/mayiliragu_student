@@ -9,4 +9,5 @@ abstract class Routes {
   static const TEST_RUNNER = '/test-runner';
   static const TEST_RESULTS = '/test-results';
   static const TEST_SOLUTIONS = '/test-solutions';
+  static const CURRENT_AFFAIRS = '/current-affairs';
 }

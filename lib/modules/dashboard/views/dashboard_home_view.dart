@@ -223,7 +223,7 @@ class DashboardHomeView extends GetView<DashboardController> {
         _buildActionCard(
           Icons.newspaper,
           AppStrings.actionCurrentAffairs,
-          () {},
+          () => Get.toNamed(Routes.CURRENT_AFFAIRS),
         ),
         _buildActionCard(
           Icons.menu_book,
