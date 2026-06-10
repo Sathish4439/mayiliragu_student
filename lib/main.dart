@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Mayiliragu LMS',
+      title: 'EducationApp LMS',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       initialRoute: initialRoute,

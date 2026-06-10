@@ -37,7 +37,7 @@ class AuthView extends GetView<AuthController> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Mayiliragu LMS', style: AppTextStyles.heading),
+                      Text('EducationApp LMS', style: AppTextStyles.heading),
                       const SizedBox(height: 8),
                       Text('Secure Sign In', style: AppTextStyles.subheading),
                       const SizedBox(height: 32),
