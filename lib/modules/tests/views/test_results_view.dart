@@ -36,6 +36,16 @@ class TestResultsView extends GetView<TestResultsController> {
         ],
       ),
       body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(80.0),
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0F3CC9)),
+              ),
+            ),
+          );
+        }
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

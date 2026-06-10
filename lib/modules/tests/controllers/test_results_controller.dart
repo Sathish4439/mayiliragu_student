@@ -1,6 +1,9 @@
 import 'package:get/get.dart';
+import '../repositories/tests_repository.dart';
 
 class TestResultsController extends GetxController {
+  final TestsRepository _testsRepository = Get.find<TestsRepository>();
+
   TestResultsController();
 
   // States
@@ -20,6 +23,7 @@ class TestResultsController extends GetxController {
   final topScore = 0.obs;
 
   final subjectPerformance = <Map<String, dynamic>>[].obs;
+  final isLoading = false.obs;
 
   @override
   void onInit() {
@@ -48,6 +52,44 @@ class TestResultsController extends GetxController {
           subjPerf.map((e) => Map<String, dynamic>.from(e)).toList(),
         );
       }
+
+      if (attemptId.value.isNotEmpty) {
+        fetchAttemptDetails(attemptId.value);
+      }
+    }
+  }
+
+  Future<void> fetchAttemptDetails(String id) async {
+    try {
+      isLoading.value = true;
+      final response = await _testsRepository.getAttemptDetails(id);
+      final data = response.data['data'] ?? response.data;
+      if (data != null) {
+        score.value = data['score'] ?? 0;
+        correctCount.value = data['correct'] ?? 0;
+        wrongCount.value = data['wrong'] ?? 0;
+        skippedCount.value = data['skipped'] ?? 0;
+        accuracy.value = data['accuracy'] ?? 0;
+        passed.value = data['passed'] ?? false;
+        rank.value = data['rank'] ?? 0;
+        classAvg.value = data['class_avg'] ?? 0;
+        topScore.value = data['top_score'] ?? 0;
+        testTitle.value = data['test_title'] ?? testTitle.value;
+
+        final int timeSeconds = data['time_taken'] ?? 0;
+        timeTakenFormatted.value = _formatSeconds(timeSeconds);
+
+        final List<dynamic>? subjPerf = data['subject_performance'];
+        if (subjPerf != null) {
+          subjectPerformance.assignAll(
+            subjPerf.map((e) => Map<String, dynamic>.from(e)).toList(),
+          );
+        }
+      }
+    } catch (e) {
+      print('Error fetching attempt details: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 

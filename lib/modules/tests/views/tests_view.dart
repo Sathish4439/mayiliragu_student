@@ -323,7 +323,7 @@ class TestsView extends GetView<TestsController> {
                   const Icon(Icons.people_outline, color: Colors.white70, size: 16),
                   const SizedBox(width: 6),
                   Text(
-                    '${4200 + featuredTest.title.length * 7} attempts',
+                    '${featuredTest.attemptsCount} attempts',
                     style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ],

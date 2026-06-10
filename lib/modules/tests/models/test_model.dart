@@ -12,6 +12,7 @@ class TestModel {
   final String? topicId;
   final bool isPublished;
   final int questionCount;
+  final int attemptsCount;
   final bool hasAttempted;
   final Map<String, dynamic>? latestAttempt;
 
@@ -29,6 +30,7 @@ class TestModel {
     this.topicId,
     required this.isPublished,
     required this.questionCount,
+    this.attemptsCount = 0,
     this.hasAttempted = false,
     this.latestAttempt,
   });
@@ -48,6 +50,7 @@ class TestModel {
       topicId: json['topic_id'],
       isPublished: json['is_published'] ?? false,
       questionCount: json['question_count'] ?? 0,
+      attemptsCount: json['attempts_count'] ?? 0,
       hasAttempted: json['has_attempted'] ?? false,
       latestAttempt: json['latest_attempt'],
     );
