@@ -1,0 +1,304 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../controllers/study_materials_controller.dart';
+import '../widgets/category_chip.dart';
+import '../widgets/material_card.dart';
+import 'study_material_detail_view.dart';
+
+class StudyMaterialDashboardView extends GetView<StudyMaterialsController> {
+  const StudyMaterialDashboardView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<StudyMaterialsController>();
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFFAF9FF),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        title: Text(
+          'Library Hub',
+          style: AppTextStyles.heading.copyWith(fontSize: 20, color: AppColors.textPrimary),
+        ),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bookmark_outline, color: AppColors.textPrimary),
+            onPressed: () {
+              controller.fetchBookmarks();
+              _showBookmarksSheet(context, controller);
+            },
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await controller.fetchCategories();
+          await controller.fetchMaterials();
+          await controller.fetchBookmarks();
+        },
+        color: AppColors.brandPurple,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Search Bar
+              _buildSearchBar(controller),
+              const SizedBox(height: 20),
+
+              // Categories Filter Header
+              const Text(
+                "Categories",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // Category chips list
+              _buildCategoryFilters(controller),
+              const SizedBox(height: 24),
+
+              // Material items list header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Trending Resources",
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  Obx(() => Text(
+                        "${controller.materialsList.length} items",
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textSecondary,
+                        ),
+                      )),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Materials List
+              _buildMaterialsFeed(controller),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(StudyMaterialsController controller) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: TextField(
+        onChanged: (val) {
+          controller.searchQuery.value = val;
+          controller.fetchMaterials();
+        },
+        decoration: const InputDecoration(
+          hintText: "Search notes, e-books, categories...",
+          hintStyle: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          prefixIcon: Icon(Icons.search, color: AppColors.textSecondary),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryFilters(StudyMaterialsController controller) {
+    return SizedBox(
+      height: 38,
+      child: Obx(() {
+        if (controller.isCategoriesLoading.value && controller.categoriesList.isEmpty) {
+          return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+        }
+
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: controller.categoriesList.length + 1,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              final active = controller.selectedCategoryId.value.isEmpty;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: CategoryChip(
+                  label: "All Library",
+                  isSelected: active,
+                  onSelected: (selected) {
+                    controller.selectedCategoryId.value = "";
+                    controller.fetchMaterials();
+                  },
+                ),
+              );
+            }
+
+            final cat = controller.categoriesList[index - 1];
+            final active = controller.selectedCategoryId.value == cat.id;
+
+            return Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: CategoryChip(
+                label: cat.name,
+                isSelected: active,
+                onSelected: (selected) {
+                  controller.selectedCategoryId.value = cat.id;
+                  controller.fetchMaterials();
+                },
+              ),
+            );
+          },
+        );
+      }),
+    );
+  }
+
+  Widget _buildMaterialsFeed(StudyMaterialsController controller) {
+    return Obx(() {
+      if (controller.isMaterialsLoading.value) {
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 40.0),
+          child: Center(
+            child: CircularProgressIndicator(color: AppColors.brandPurple),
+          ),
+        );
+      }
+
+      if (controller.materialsList.isEmpty) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 40.0),
+          child: Column(
+            children: [
+              Icon(Icons.library_books_outlined, size: 48, color: Colors.grey.shade400),
+              const SizedBox(height: 12),
+              const Text(
+                "No materials found in this category.",
+                style: TextStyle(
+                    fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        );
+      }
+
+      return ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: controller.materialsList.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          final mat = controller.materialsList[index];
+          return MaterialCard(
+            material: mat,
+            onTap: () => Get.to(() => StudyMaterialDetailView(materialId: mat.id)),
+            onBookmarkTap: () => controller.toggleBookmark(mat.id),
+          );
+        },
+      );
+    });
+  }
+
+  void _showBookmarksSheet(BuildContext context, StudyMaterialsController controller) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFFFAF9FF),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "My Saved Materials",
+                    style: TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimary),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: Obx(() {
+                  if (controller.bookmarksList.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.bookmark_outline, size: 40, color: Colors.grey.shade400),
+                          const SizedBox(height: 8),
+                          const Text("No saved resources yet.",
+                              style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        ],
+                      ),
+                    );
+                  }
+                  return ListView.builder(
+                    itemCount: controller.bookmarksList.length,
+                    itemBuilder: (context, index) {
+                      final mat = controller.bookmarksList[index];
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: CircleAvatar(
+                          backgroundColor: AppColors.brandPurple.withOpacity(0.08),
+                          child: const Icon(Icons.folder_zip, color: AppColors.brandPurple, size: 18),
+                        ),
+                        title: Text(
+                          mat.title,
+                          style: const TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: Text(
+                          mat.category?.name ?? 'Material',
+                          style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                        ),
+                        trailing: const Icon(Icons.chevron_right, size: 16),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Get.to(() => StudyMaterialDetailView(materialId: mat.id));
+                        },
+                      );
+                    },
+                  );
+                }),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}

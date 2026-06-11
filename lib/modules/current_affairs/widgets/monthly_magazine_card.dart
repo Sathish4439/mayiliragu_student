@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/api_constants.dart';
 import '../models/current_affairs_models.dart';
 
 class MonthlyMagazineCard extends StatelessWidget {
@@ -55,11 +56,14 @@ class MonthlyMagazineCard extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.download_for_offline_outlined, color: AppColors.brandPurple, size: 26),
             onPressed: () async {
-              // Launch static PDF file hosted locally on backend server
-              final url = 'http://192.168.0.142:5000${magazine.pdfUrl}';
+              // Dynamically resolve backend host domain
+              final base = ApiConstants.baseUrl.replaceAll('/api', '');
+              final url = '$base${magazine.pdfUrl}';
               final uri = Uri.parse(url);
-              if (await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-                // success
+              try {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } catch (e) {
+                // error
               }
             },
           ),

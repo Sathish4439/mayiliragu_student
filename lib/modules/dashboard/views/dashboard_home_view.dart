@@ -218,7 +218,7 @@ class DashboardHomeView extends GetView<DashboardController> {
         _buildActionCard(
           Icons.quiz_outlined,
           AppStrings.actionPracticeTest,
-          () => Get.toNamed(Routes.COURSES),
+          () => Get.toNamed(Routes.TEST_RUNNER),
         ),
         _buildActionCard(
           Icons.newspaper,
@@ -228,7 +228,7 @@ class DashboardHomeView extends GetView<DashboardController> {
         _buildActionCard(
           Icons.menu_book,
           AppStrings.actionStudyMaterials,
-          () => Get.toNamed(Routes.COURSES),
+          () => Get.toNamed(Routes.STUDY_MATERIALS),
         ),
         _buildActionCard(
           Icons.analytics_outlined,
