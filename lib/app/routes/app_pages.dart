@@ -21,6 +21,8 @@ import '../../modules/current_affairs/bindings/current_affairs_binding.dart';
 import '../../modules/current_affairs/views/current_affairs_dashboard_view.dart';
 import '../../modules/study_materials/bindings/study_materials_binding.dart';
 import '../../modules/study_materials/views/study_material_dashboard_view.dart';
+import '../../modules/analytics/bindings/analytics_binding.dart';
+import '../../modules/analytics/views/analytics_dashboard_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -83,6 +85,11 @@ class AppPages {
       name: Routes.STUDY_MATERIALS,
       page: () => const StudyMaterialDashboardView(),
       binding: StudyMaterialsBinding(),
+    ),
+    GetPage(
+      name: Routes.PERFORMANCE,
+      page: () => const AnalyticsDashboardView(),
+      binding: AnalyticsBinding(),
     ),
   ];
 }

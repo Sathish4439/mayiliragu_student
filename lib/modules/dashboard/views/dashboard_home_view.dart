@@ -233,7 +233,7 @@ class DashboardHomeView extends GetView<DashboardController> {
         _buildActionCard(
           Icons.analytics_outlined,
           AppStrings.actionPerformance,
-          () {},
+          () => Get.toNamed(Routes.PERFORMANCE),
         ),
       ],
     );
