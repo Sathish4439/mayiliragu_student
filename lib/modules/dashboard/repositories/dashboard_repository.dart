@@ -9,4 +9,8 @@ class DashboardRepository {
   Future<Response> getStudentDashboard() {
     return _apiClient.get(ApiConstants.dashboard);
   }
+
+  Future<Response> getStudentProfile() {
+    return _apiClient.get(ApiConstants.profile);
+  }
 }

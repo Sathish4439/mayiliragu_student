@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../core/services/secure_storage_service.dart';
 import '../repositories/dashboard_repository.dart';
+import '../models/dashboard_model.dart';
 
 class DashboardController extends GetxController {
   final DashboardRepository _repository;
@@ -10,9 +11,8 @@ class DashboardController extends GetxController {
   final isLoading = false.obs;
   final errorMessage = ''.obs;
 
-  final enrolledCourses = <dynamic>[].obs;
-  final continueLearning = Rxn<dynamic>();
-  final recentlyWatched = <dynamic>[].obs;
+  // Strongly typed dashboard data model
+  final dashboardData = Rxn<DashboardModel>();
 
   DashboardController(this._repository);
 
@@ -27,11 +27,23 @@ class DashboardController extends GetxController {
     errorMessage.value = '';
     try {
       final response = await _repository.getStudentDashboard();
+      
+      UserProfile? profile;
+      try {
+        final profileResponse = await _repository.getStudentProfile();
+        if (profileResponse.statusCode == 200) {
+          final profileJson = profileResponse.data['data'] as Map<String, dynamic>?;
+          if (profileJson != null) {
+            profile = UserProfile.fromJson(profileJson);
+          }
+        }
+      } catch (_) {
+        // Suppress profile fetch error so dashboard still loads
+      }
+
       if (response.statusCode == 200) {
-        final data = response.data;
-        enrolledCourses.value = data['enrolledCourses'] ?? [];
-        continueLearning.value = data['continueLearning'];
-        recentlyWatched.value = data['recentlyWatched'] ?? [];
+        final data = response.data as Map<String, dynamic>;
+        dashboardData.value = DashboardModel.fromJson(data, profile: profile);
       } else {
         errorMessage.value = response.data['message'] ?? 'Failed to load dashboard';
       }

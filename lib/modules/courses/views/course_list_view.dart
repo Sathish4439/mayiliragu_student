@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/course_image.dart';
 import '../controllers/course_controller.dart';
 import 'course_detail_view.dart';
 
@@ -115,35 +116,10 @@ class CourseListView extends GetView<CourseController> {
           children: [
             AspectRatio(
               aspectRatio: 16 / 9,
-              child: thumbnail.isNotEmpty
-                  ? Image.network(
-                      thumbnail,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return const Center(
-                          child: CircularProgressIndicator(color: AppColors.accent),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: AppColors.secondary,
-                          child: const Icon(
-                            Icons.broken_image,
-                            color: AppColors.textSecondary,
-                            size: 48,
-                          ),
-                        );
-                      },
-                    )
-                  : Container(
-                      color: AppColors.secondary,
-                      child: const Icon(
-                        Icons.image,
-                        color: AppColors.textSecondary,
-                        size: 48,
-                      ),
-                    ),
+              child: CourseImage(
+                imageUrl: thumbnail,
+                fit: BoxFit.cover,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),

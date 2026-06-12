@@ -7,6 +7,16 @@ class SecureStorageService extends GetxService {
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
   static const _userRoleKey = 'user_role';
+  static const _hasSeenOnboardingKey = 'has_seen_onboarding';
+
+  Future<bool> hasSeenOnboarding() async {
+    final value = await _storage.read(key: _hasSeenOnboardingKey);
+    return value == 'true';
+  }
+
+  Future<void> setHasSeenOnboarding() async {
+    await _storage.write(key: _hasSeenOnboardingKey, value: 'true');
+  }
 
   Future<void> saveTokens({
     required String accessToken,

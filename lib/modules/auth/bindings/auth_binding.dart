@@ -6,7 +6,7 @@ import '../repositories/auth_repository.dart';
 class AuthBinding implements Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<AuthRepository>(() => AuthRepository(Get.find<ApiClient>()));
-    Get.lazyPut<AuthController>(() => AuthController(Get.find<AuthRepository>()));
+    Get.lazyPut<AuthRepository>(() => AuthRepository(Get.find<ApiClient>()), fenix: true);
+    Get.lazyPut<AuthController>(() => AuthController(Get.find<AuthRepository>()), fenix: true);
   }
 }
