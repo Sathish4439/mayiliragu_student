@@ -41,48 +41,35 @@ class AuthView extends GetView<AuthController> {
                     size: 38,
                   ),
                 ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Mayiliragu LMS',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF2C008F),
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Empowering Aspirants, Ensuring Success',
-                  style: TextStyle(fontSize: 14, color: Color(0xFF6E7191)),
-                ),
-                const SizedBox(height: 36),
-
-                // Login Input Card
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x0A000000),
-                        blurRadius: 20,
-                        offset: Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Welcome Back',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF0F0F0F),
+                color: AppColors.cardBg,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('EducationApp LMS', style: AppTextStyles.heading),
+                      const SizedBox(height: 8),
+                      Text('Secure Sign In', style: AppTextStyles.subheading),
+                      const SizedBox(height: 32),
+                      TextField(
+                        controller: controller.emailController,
+                        style: TextStyle(color: AppColors.textPrimary),
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          labelStyle: TextStyle(color: AppColors.textSecondary),
+                          prefixIcon: Icon(
+                            Icons.email_outlined,
+                            color: AppColors.textSecondary,
+                          ),
+                          filled: true,
+                          fillColor: AppColors.textPrimary.withAlpha(
+                            12,
+                          ), // equivalent to withOpacity(0.05)
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: AppColors.border,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
