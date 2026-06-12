@@ -6,10 +6,11 @@ class ApiConstants {
   static String get baseUrl {
     try {
       if (Platform.isAndroid) {
-        return 'http://192.168.0.142:5000/api';
+        return 'https://education-api-tb3k.onrender.com/api';
+      //  return 'http://192.168.0.142:5000/api';
       }
     } catch (_) {}
-    return 'http://localhost:5000/api';
+    return 'https://education-api-tb3k.onrender.com/api';
   }
 
   static const login = '/auth/login';                                                                                                                                                                                                                                                                                                                                                                       
