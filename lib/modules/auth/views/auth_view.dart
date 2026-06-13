@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/toast_helper.dart';
 import '../controllers/auth_controller.dart';
 
 class AuthView extends GetView<AuthController> {
@@ -209,10 +210,9 @@ class AuthView extends GetView<AuthController> {
                         //   alignment: Alignment.centerRight,
                         //   child: TextButton(
                         //     onPressed: () {
-                        //       Get.snackbar(
-                        //         'Forgot Password',
+                        //       AppToast.info(
                         //         'Please contact the administrator to reset your password.',
-                        //         snackPosition: SnackPosition.BOTTOM,
+                        //         title: 'Forgot Password',
                         //       );
                         //     },
                         //     child: const Text(

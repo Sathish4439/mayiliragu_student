@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../../core/services/secure_storage_service.dart';
+import '../../../core/services/video_download_service.dart';
+import '../../../core/utils/toast_helper.dart';
 import '../repositories/lesson_repository.dart';
 import '../repositories/notes_repository.dart';
 
@@ -89,51 +91,63 @@ class LessonController extends GetxController {
       return;
     }
 
-    // If the driveFileId is already a full URL (or for fallback test stream)
-    String videoUrl = driveFileId;
-    Map<String, String>? headers;
+    final downloadService = Get.find<VideoDownloadService>();
+    final isDownloadedOffline = downloadService.isDownloaded(_currentLessonId ?? '');
+    final BetterPlayerDataSource dataSource;
 
-    if (driveFileId.isEmpty) {
-      // Fallback test video stream if none provided
-      videoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+    if (isDownloadedOffline) {
+      final localPath = downloadService.getLocalVideoPath(_currentLessonId ?? '');
+      dataSource = BetterPlayerDataSource(
+        BetterPlayerDataSourceType.file,
+        localPath!,
+      );
     } else {
-      String extractedId = driveFileId;
-      final bool isGoogleDriveUrl = driveFileId.contains('drive.google.com');
+      // If the driveFileId is already a full URL (or for fallback test stream)
+      String videoUrl = driveFileId;
+      Map<String, String>? headers;
 
-      if (isGoogleDriveUrl) {
-        // Extract the file ID from Google Drive URL patterns:
-        // 1. /file/d/FILE_ID/view...
-        final regExp1 = RegExp(r'/file/d/([a-zA-Z0-9-_]+)');
-        final match1 = regExp1.firstMatch(driveFileId);
-        if (match1 != null && match1.groupCount >= 1) {
-          extractedId = match1.group(1)!;
-        } else {
-          // 2. ?id=FILE_ID or &id=FILE_ID
-          final regExp2 = RegExp(r'[?&]id=([a-zA-Z0-9-_]+)');
-          final match2 = regExp2.firstMatch(driveFileId);
-          if (match2 != null && match2.groupCount >= 1) {
-            extractedId = match2.group(1)!;
+      if (driveFileId.isEmpty) {
+        // Fallback test video stream if none provided
+        videoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+      } else {
+        String extractedId = driveFileId;
+        final bool isGoogleDriveUrl = driveFileId.contains('drive.google.com');
+
+        if (isGoogleDriveUrl) {
+          // Extract the file ID from Google Drive URL patterns:
+          // 1. /file/d/FILE_ID/view...
+          final regExp1 = RegExp(r'/file/d/([a-zA-Z0-9-_]+)');
+          final match1 = regExp1.firstMatch(driveFileId);
+          if (match1 != null && match1.groupCount >= 1) {
+            extractedId = match1.group(1)!;
+          } else {
+            // 2. ?id=FILE_ID or &id=FILE_ID
+            final regExp2 = RegExp(r'[?&]id=([a-zA-Z0-9-_]+)');
+            final match2 = regExp2.firstMatch(driveFileId);
+            if (match2 != null && match2.groupCount >= 1) {
+              extractedId = match2.group(1)!;
+            }
+          }
+        }
+
+        if (isGoogleDriveUrl || !driveFileId.startsWith('http')) {
+          // Use backend proxy streaming endpoint
+          videoUrl = '${ApiConstants.baseUrl}/lessons/stream/$extractedId';
+          final token = await Get.find<SecureStorageService>().getAccessToken();
+          if (token != null) {
+            headers = {
+              'Authorization': 'Bearer $token',
+            };
           }
         }
       }
 
-      if (isGoogleDriveUrl || !driveFileId.startsWith('http')) {
-        // Use backend proxy streaming endpoint
-        videoUrl = '${ApiConstants.baseUrl}/lessons/stream/$extractedId';
-        final token = await Get.find<SecureStorageService>().getAccessToken();
-        if (token != null) {
-          headers = {
-            'Authorization': 'Bearer $token',
-          };
-        }
-      }
+      dataSource = BetterPlayerDataSource(
+        BetterPlayerDataSourceType.network,
+        videoUrl,
+        headers: headers,
+      );
     }
-
-    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
-      BetterPlayerDataSourceType.network,
-      videoUrl,
-      headers: headers,
-    );
 
     betterPlayerController = BetterPlayerController(
       BetterPlayerConfiguration(
@@ -210,13 +224,7 @@ class LessonController extends GetxController {
       );
       if (response.statusCode == 201) {
         fetchNotes(_currentLessonId!);
-        Get.snackbar(
-          'Success',
-          'Note added successfully!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.brandPurple.withValues(alpha: 0.1),
-          colorText: AppColors.brandPurple,
-        );
+        AppToast.success('Note added successfully!');
       }
     } catch (e) {
       debugPrint('Error adding note: $e');
@@ -232,13 +240,7 @@ class LessonController extends GetxController {
       );
       if (response.statusCode == 200) {
         fetchNotes(_currentLessonId!);
-        Get.snackbar(
-          'Success',
-          'Note updated successfully!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.brandPurple.withValues(alpha: 0.1),
-          colorText: AppColors.brandPurple,
-        );
+        AppToast.success('Note updated successfully!');
       }
     } catch (e) {
       debugPrint('Error editing note: $e');
@@ -251,13 +253,7 @@ class LessonController extends GetxController {
       final response = await _notesRepository.deleteNote(id);
       if (response.statusCode == 200) {
         fetchNotes(_currentLessonId!);
-        Get.snackbar(
-          'Success',
-          'Note deleted successfully!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.brandPurple.withValues(alpha: 0.1),
-          colorText: AppColors.brandPurple,
-        );
+        AppToast.success('Note deleted successfully!');
       }
     } catch (e) {
       debugPrint('Error deleting note: $e');
@@ -277,23 +273,87 @@ class LessonController extends GetxController {
       final response = await _repository.markAsComplete(_currentLessonId!);
       if (response.statusCode == 200) {
         isCompleted.value = true;
-        Get.snackbar(
-          'Success',
-          'Lesson marked as complete!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.brandPurple.withValues(alpha: 0.1),
-          colorText: AppColors.brandPurple,
-        );
+        AppToast.success('Lesson marked as complete!');
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to mark lesson as complete: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withValues(alpha: 0.1),
-        colorText: Colors.red,
-      );
+      AppToast.error('Failed to mark lesson as complete: $e');
     }
+  }
+
+  Future<void> startVideoDownload() async {
+    if (_currentLessonId == null || lessonData.value == null) return;
+    
+    final downloadService = Get.find<VideoDownloadService>();
+    final driveFileId = lessonData.value!['driveFileId']?.toString() ?? '';
+    if (driveFileId.isEmpty) {
+      AppToast.error('No video source file found.');
+      return;
+    }
+
+    String videoUrl = driveFileId;
+    Map<String, String>? headers;
+
+    String extractedId = driveFileId;
+    final bool isGoogleDriveUrl = driveFileId.contains('drive.google.com');
+
+    if (isGoogleDriveUrl) {
+      final regExp1 = RegExp(r'/file/d/([a-zA-Z0-9-_]+)');
+      final match1 = regExp1.firstMatch(driveFileId);
+      if (match1 != null && match1.groupCount >= 1) {
+        extractedId = match1.group(1)!;
+      } else {
+        final regExp2 = RegExp(r'[?&]id=([a-zA-Z0-9-_]+)');
+        final match2 = regExp2.firstMatch(driveFileId);
+        if (match2 != null && match2.groupCount >= 1) {
+          extractedId = match2.group(1)!;
+        }
+      }
+    }
+
+    if (isGoogleDriveUrl || !driveFileId.startsWith('http')) {
+      videoUrl = '${ApiConstants.baseUrl}/lessons/stream/$extractedId';
+      final token = await Get.find<SecureStorageService>().getAccessToken();
+      if (token != null) {
+        headers = {
+          'Authorization': 'Bearer $token',
+        };
+      }
+    }
+
+    await downloadService.downloadVideo(
+      _currentLessonId!,
+      videoUrl,
+      headers: headers,
+      onComplete: () async {
+        try {
+          await _repository.logVideoDownload(_currentLessonId!);
+        } catch (e) {
+          debugPrint('Failed to log video download on backend: $e');
+        }
+        AppToast.success('Video downloaded successfully for offline viewing!');
+        // Reload player with offline file source
+        final startSecs = betterPlayerController?.videoPlayerController?.value.position.inSeconds ?? 0;
+        betterPlayerController?.dispose();
+        await _initializeVideoPlayer(driveFileId, startSeconds: startSecs);
+        update();
+      },
+      onError: (err) {
+        AppToast.error('Failed to download video: $err');
+      },
+    );
+  }
+
+  Future<void> deleteDownloadedVideo() async {
+    if (_currentLessonId == null || lessonData.value == null) return;
+    final downloadService = Get.find<VideoDownloadService>();
+    await downloadService.deleteVideo(_currentLessonId!);
+    AppToast.info('Local offline video deleted successfully.');
+    // Reload player with network source
+    final driveFileId = lessonData.value!['driveFileId']?.toString() ?? '';
+    final startSecs = betterPlayerController?.videoPlayerController?.value.position.inSeconds ?? 0;
+    betterPlayerController?.dispose();
+    await _initializeVideoPlayer(driveFileId, startSeconds: startSecs);
+    update();
   }
 
   @override

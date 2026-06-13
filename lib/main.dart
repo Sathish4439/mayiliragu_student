@@ -8,6 +8,7 @@ import 'app/routes/app_routes.dart';
 import 'core/network/api_client.dart';
 import 'core/services/secure_storage_service.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/video_download_service.dart';
 import 'core/theme/app_theme.dart';
 
 void main() async {
@@ -20,6 +21,9 @@ void main() async {
   // Initialize Core Services
   final storage = Get.put(SecureStorageService());
   Get.put(ApiClient());
+  
+  final downloadService = Get.put(VideoDownloadService());
+  await downloadService.init();
   
   final notifications = Get.put(NotificationService());
   await notifications.initialize();

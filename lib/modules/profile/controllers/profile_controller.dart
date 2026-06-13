@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../repositories/profile_repository.dart';
-import '../../../core/widgets/app_toast.dart';
+import '../../../core/utils/toast_helper.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/services/secure_storage_service.dart';

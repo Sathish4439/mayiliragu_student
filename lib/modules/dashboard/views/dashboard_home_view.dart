@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/widgets/course_image.dart';
+import '../../../core/utils/toast_helper.dart';
 import '../../../app/routes/app_routes.dart';
 import '../controllers/dashboard_controller.dart';
 import '../models/dashboard_model.dart';
@@ -162,10 +163,9 @@ class DashboardHomeView extends GetView<DashboardController> {
                 size: 26,
               ),
               onPressed: () {
-                Get.snackbar(
-                  AppStrings.notificationTitle,
+                AppToast.info(
                   AppStrings.notificationSubtitle,
-                  snackPosition: SnackPosition.BOTTOM,
+                  title: AppStrings.notificationTitle,
                 );
               },
             ),

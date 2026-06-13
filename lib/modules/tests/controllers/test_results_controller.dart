@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../repositories/tests_repository.dart';
+import '../../../core/utils/toast_helper.dart';
 
 class TestResultsController extends GetxController {
   final TestsRepository _testsRepository = Get.find<TestsRepository>();
@@ -118,19 +119,17 @@ class TestResultsController extends GetxController {
         'test_title': testTitle.value,
       });
     } else {
-      Get.snackbar(
-        'Solutions Unavailable',
+      AppToast.error(
         'Detailed solutions are not available for offline attempts.',
-        snackPosition: SnackPosition.BOTTOM,
+        title: 'Solutions Unavailable',
       );
     }
   }
 
   void detailedAnalysis() {
-    Get.snackbar(
-      'Detailed Analysis',
+    AppToast.info(
       'Detailed analysis report is being generated.',
-      snackPosition: SnackPosition.BOTTOM,
+      title: 'Detailed Analysis',
     );
   }
 }

@@ -5,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../controllers/study_materials_controller.dart';
 import '../widgets/version_item.dart';
+import '../../../../core/utils/toast_helper.dart';
 
 class StudyMaterialDetailView extends StatefulWidget {
   final String materialId;
@@ -46,7 +47,7 @@ class _StudyMaterialDetailViewState extends State<StudyMaterialDetailView> {
       try {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } catch (e) {
-        Get.snackbar('Error', 'Could not launch download URL');
+        AppToast.error('Could not launch download URL', title: 'Error');
       }
     }
   }

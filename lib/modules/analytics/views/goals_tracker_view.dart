@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/toast_helper.dart';
 import '../controllers/analytics_controller.dart';
 import '../widgets/goal_item.dart';
 
@@ -80,9 +81,9 @@ class GoalsTrackerView extends StatelessWidget {
                 controller.createGoal(title, target);
                 Navigator.pop(context);
               } else {
-                Get.snackbar(
-                  'Input Error',
+                AppToast.error(
                   'Please fill valid title and numeric target',
+                  title: 'Input Error',
                 );
               }
             },

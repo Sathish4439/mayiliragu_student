@@ -3,6 +3,7 @@ import '../../study_materials/models/study_material_models.dart';
 import '../../study_materials/repositories/study_materials_repository.dart';
 import '../models/book_model.dart';
 import '../repositories/book_store_repository.dart';
+import '../../../core/utils/toast_helper.dart';
 
 class BookStoreController extends GetxController {
   final BookStoreRepository _repository;
@@ -269,7 +270,7 @@ class BookStoreController extends GetxController {
         return order;
       }
     } catch (e) {
-      Get.snackbar('Order Error', e.toString().replaceAll('Exception:', ''));
+      AppToast.error(e.toString().replaceAll('Exception:', ''), title: 'Order Error');
     } finally {
       isPlacingOrder.value = false;
     }
@@ -284,7 +285,7 @@ class BookStoreController extends GetxController {
         return response.data['data'];
       }
     } catch (e) {
-      Get.snackbar('Access Error', 'You do not have access to view this book yet. Ensure payment is marked paid.');
+      AppToast.error('You do not have access to view this book yet. Ensure payment is marked paid.', title: 'Access Error');
     } finally {
       isDownloading.value = false;
     }

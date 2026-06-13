@@ -6,6 +6,7 @@ import '../../../../core/constants/api_constants.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../study_materials/widgets/category_chip.dart';
 import '../controllers/book_store_controller.dart';
+import '../../../../core/utils/toast_helper.dart';
 import '../models/book_model.dart';
 import 'book_detail_view.dart';
 
@@ -529,7 +530,7 @@ class _BookStoreDashboardViewState extends State<BookStoreDashboardView> with Si
       try {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } catch (e) {
-        Get.snackbar('Error', 'Could not open book PDF');
+        AppToast.error('Could not open book PDF', title: 'Error');
       }
     }
   }

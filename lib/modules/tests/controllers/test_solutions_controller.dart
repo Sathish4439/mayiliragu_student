@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../repositories/tests_repository.dart';
+import '../../../core/utils/toast_helper.dart';
 
 class TestSolutionsController extends GetxController {
   final TestsRepository _repository;
@@ -78,17 +79,15 @@ class TestSolutionsController extends GetxController {
   void toggleBookmark(String questionId) {
     if (bookmarkedQuestions.contains(questionId)) {
       bookmarkedQuestions.remove(questionId);
-      Get.snackbar(
-        'Bookmark Removed',
+      AppToast.success(
         'Question removed from your saved list.',
-        snackPosition: SnackPosition.BOTTOM,
+        title: 'Bookmark Removed',
       );
     } else {
       bookmarkedQuestions.add(questionId);
-      Get.snackbar(
-        'Question Bookmarked',
+      AppToast.success(
         'Question saved for review in your profile.',
-        snackPosition: SnackPosition.BOTTOM,
+        title: 'Question Bookmarked',
       );
     }
   }

@@ -28,4 +28,8 @@ class LessonRepository {
       },
     );
   }
+
+  Future<dio_instance.Response> logVideoDownload(String lessonId) async {
+    return await _apiClient.post('/lessons/$lessonId/download');
+  }
 }

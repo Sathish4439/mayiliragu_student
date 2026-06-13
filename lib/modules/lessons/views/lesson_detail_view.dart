@@ -5,6 +5,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../controllers/lesson_controller.dart';
 
+import '../../../core/services/video_download_service.dart';
+
 class LessonDetailView extends GetView<LessonController> {
   const LessonDetailView({super.key});
 
@@ -330,7 +332,84 @@ class LessonDetailView extends GetView<LessonController> {
             overflow: TextOverflow.ellipsis,
           );
         }),
-        actions: [],
+        actions: [
+          Obx(() {
+            final lesson = controller.lessonData.value;
+            if (lesson == null || lesson['downloadEnabled'] != true) {
+              return const SizedBox.shrink();
+            }
+            final lessonId = lesson['id']?.toString() ?? '';
+            final downloadService = Get.find<VideoDownloadService>();
+            
+            return Obx(() {
+              final isDownloaded = downloadService.isDownloaded(lessonId);
+              final isDownloading = downloadService.isDownloading[lessonId] ?? false;
+              final progress = downloadService.downloadProgress[lessonId] ?? 0.0;
+
+              if (isDownloading) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        value: progress,
+                        strokeWidth: 2,
+                        color: const Color(0xFF0D47A1),
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              if (isDownloaded) {
+                return IconButton(
+                  icon: const Icon(
+                    Icons.offline_pin_rounded,
+                    color: Colors.green,
+                    size: 24,
+                  ),
+                  onPressed: () {
+                    Get.dialog(
+                      AlertDialog(
+                        title: const Text('Delete Offline Video'),
+                        content: const Text(
+                            'Are you sure you want to delete this downloaded video from your device storage?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Get.back(),
+                            child: const Text('Cancel',
+                                style: TextStyle(color: Colors.grey)),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              controller.deleteDownloadedVideo();
+                              Get.back();
+                            },
+                            child: const Text('Delete',
+                                style: TextStyle(color: Colors.red)),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  tooltip: 'Delete offline video',
+                );
+              }
+
+              return IconButton(
+                icon: const Icon(
+                  Icons.file_download_outlined,
+                  color: Color(0xFF0D47A1),
+                  size: 24,
+                ),
+                onPressed: () => controller.startVideoDownload(),
+                tooltip: 'Download video offline',
+              );
+            });
+          }),
+        ],
         backgroundColor: Colors.white,
         elevation: 0.5,
       ),

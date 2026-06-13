@@ -54,12 +54,14 @@ class LessonModel {
   final String id;
   final String title;
   final int duration;
+  final bool downloadEnabled;
   final LessonProgressModel? progress;
 
   LessonModel({
     required this.id,
     required this.title,
     required this.duration,
+    required this.downloadEnabled,
     this.progress,
   });
 
@@ -68,6 +70,7 @@ class LessonModel {
       id: json['id']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
       duration: json['duration'] as int? ?? 0,
+      downloadEnabled: json['downloadEnabled'] as bool? ?? false,
       progress: json['progress'] != null
           ? LessonProgressModel.fromJson(json['progress'] as Map<String, dynamic>)
           : null,

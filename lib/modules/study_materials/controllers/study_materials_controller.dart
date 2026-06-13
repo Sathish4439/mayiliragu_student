@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import '../models/study_material_models.dart';
 import '../repositories/study_materials_repository.dart';
+import '../../../core/utils/toast_helper.dart';
 
 class StudyMaterialsController extends GetxController {
   final StudyMaterialsRepository _repository;
@@ -184,10 +185,10 @@ class StudyMaterialsController extends GetxController {
       if (response.statusCode == 200) {
         return response.data['data'];
       } else {
-        Get.snackbar('Download Failed', response.data['message'] ?? 'Unable to download file');
+        AppToast.error(response.data['message'] ?? 'Unable to download file', title: 'Download Failed');
       }
     } catch (e) {
-      Get.snackbar('Error', 'Unable to initiate download: $e');
+      AppToast.error('Unable to initiate download: $e', title: 'Error');
     } finally {
       isDownloading.value = false;
     }

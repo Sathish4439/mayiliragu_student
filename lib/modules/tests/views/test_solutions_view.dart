@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/test_solutions_controller.dart';
+import '../../../core/utils/toast_helper.dart';
 
 class TestSolutionsView extends GetView<TestSolutionsController> {
   const TestSolutionsView({super.key});
@@ -698,10 +699,9 @@ class TestSolutionsView extends GetView<TestSolutionsController> {
             icon: Icons.share_outlined,
             label: 'Share',
             onTap: () {
-              Get.snackbar(
-                'Share Results',
+              AppToast.success(
                 'Performance scorecard link copied to clipboard.',
-                snackPosition: SnackPosition.BOTTOM,
+                title: 'Share Results',
               );
             },
           ),

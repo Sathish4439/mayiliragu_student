@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import '../models/analytics_models.dart';
 import '../repositories/analytics_repository.dart';
+import '../../../core/utils/toast_helper.dart';
 
 class AnalyticsController extends GetxController {
   final AnalyticsRepository _repository;
@@ -113,11 +114,11 @@ class AnalyticsController extends GetxController {
     try {
       final response = await _repository.createGoal(goalTitle, targetValue);
       if (response.statusCode == 201) {
-        Get.snackbar('Success', 'Goal created successfully');
+        AppToast.success('Goal created successfully');
         fetchGoals();
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to create goal');
+      AppToast.error('Failed to create goal');
     }
   }
 
@@ -128,7 +129,7 @@ class AnalyticsController extends GetxController {
         fetchGoals();
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to update progress');
+      AppToast.error('Failed to update progress');
     }
   }
 
@@ -136,11 +137,11 @@ class AnalyticsController extends GetxController {
     try {
       final response = await _repository.deleteGoal(id);
       if (response.statusCode == 200) {
-        Get.snackbar('Success', 'Goal deleted');
+        AppToast.success('Goal deleted');
         fetchGoals();
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to delete goal');
+      AppToast.error('Failed to delete goal');
     }
   }
 
