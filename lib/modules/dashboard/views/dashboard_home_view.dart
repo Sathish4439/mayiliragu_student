@@ -241,6 +241,11 @@ class DashboardHomeView extends GetView<DashboardController> {
           AppStrings.actionPerformance,
           () => Get.toNamed(Routes.PERFORMANCE),
         ),
+        _buildActionCard(
+          Icons.shopping_bag_outlined,
+          "Book Store",
+          () => Get.toNamed(Routes.BOOK_STORE),
+        ),
       ],
     );
   }

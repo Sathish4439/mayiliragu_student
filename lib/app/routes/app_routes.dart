@@ -12,4 +12,5 @@ abstract class Routes {
   static const CURRENT_AFFAIRS = '/current-affairs';
   static const STUDY_MATERIALS = '/study-materials';
   static const PERFORMANCE = '/performance';
+  static const BOOK_STORE = '/book-store';
 }

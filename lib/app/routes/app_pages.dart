@@ -23,6 +23,8 @@ import '../../modules/study_materials/bindings/study_materials_binding.dart';
 import '../../modules/study_materials/views/study_material_dashboard_view.dart';
 import '../../modules/analytics/bindings/analytics_binding.dart';
 import '../../modules/analytics/views/analytics_dashboard_view.dart';
+import '../../modules/book_store/bindings/book_store_binding.dart';
+import '../../modules/book_store/views/book_store_dashboard_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -90,6 +92,11 @@ class AppPages {
       name: Routes.PERFORMANCE,
       page: () => const AnalyticsDashboardView(),
       binding: AnalyticsBinding(),
+    ),
+    GetPage(
+      name: Routes.BOOK_STORE,
+      page: () => const BookStoreDashboardView(),
+      binding: BookStoreBinding(),
     ),
   ];
 }
