@@ -1,12 +1,16 @@
 import 'package:get/get.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../core/services/secure_storage_service.dart';
+import '../../../core/services/notification_service.dart';
 import '../repositories/dashboard_repository.dart';
 import '../models/dashboard_model.dart';
 
 class DashboardController extends GetxController {
   final DashboardRepository _repository;
   final SecureStorageService _storage = Get.find<SecureStorageService>();
+
+  final tabController = PersistentTabController(initialIndex: 0);
 
   final isLoading = false.obs;
   final errorMessage = ''.obs;
@@ -56,8 +60,17 @@ class DashboardController extends GetxController {
 
   Future<void> logout() async {
     try {
+      if (Get.isRegistered<NotificationService>()) {
+        await Get.find<NotificationService>().unregisterToken();
+      }
       await _storage.clearAll();
     } catch (_) {}
     Get.offAllNamed(Routes.LOGIN);
+  }
+
+  @override
+  void onClose() {
+    tabController.dispose();
+    super.onClose();
   }
 }

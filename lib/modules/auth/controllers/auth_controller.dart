@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/services/secure_storage_service.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../repositories/auth_repository.dart';
 
@@ -52,6 +53,11 @@ class AuthController extends GetxController {
           role: role,
         );
 
+        // Sync FCM token
+        if (Get.isRegistered<NotificationService>()) {
+          await Get.find<NotificationService>().syncToken();
+        }
+
         emailController.clear();
         passwordController.clear();
         
@@ -69,6 +75,9 @@ class AuthController extends GetxController {
 
   Future<void> logout() async {
     try {
+      if (Get.isRegistered<NotificationService>()) {
+        await Get.find<NotificationService>().unregisterToken();
+      }
       await _authRepository.logout();
     } catch (_) {}
     await _storage.clearAll();

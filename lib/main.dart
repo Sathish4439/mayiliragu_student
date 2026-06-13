@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -6,6 +7,7 @@ import 'app/routes/app_pages.dart';
 import 'app/routes/app_routes.dart';
 import 'core/network/api_client.dart';
 import 'core/services/secure_storage_service.dart';
+import 'core/services/notification_service.dart';
 import 'core/theme/app_theme.dart';
 
 void main() async {
@@ -15,12 +17,19 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  
   // Initialize Core Services
   final storage = Get.put(SecureStorageService());
   Get.put(ApiClient());
+  
+  final notifications = Get.put(NotificationService());
+  await notifications.initialize();
 
   final token = await storage.getAccessToken();
+  if (token != null) {
+    // Sync FCM token if already logged in
+    unawaited(notifications.syncToken());
+  }
+
   final role = await storage.getUserRole();
   final hasSeenOnboarding = await storage.hasSeenOnboarding();
 

@@ -25,6 +25,11 @@ class _CurrentAffairDetailViewState extends State<CurrentAffairDetailView> with 
   void initState() {
     super.initState();
     _bilingualTabController = TabController(length: 2, vsync: this);
+    _bilingualTabController.addListener(() {
+      if (!_bilingualTabController.indexIsChanging) {
+        setState(() {});
+      }
+    });
 
     // Fetch article details & quizzes
     final controller = Get.find<CurrentAffairsController>();
@@ -253,6 +258,7 @@ class _CurrentAffairDetailViewState extends State<CurrentAffairDetailView> with 
                 index: idx,
                 isSubmitted: isSubmitted,
                 selectedOption: selected,
+                showTamil: _bilingualTabController.index == 1,
                 onOptionSelected: (opt) {
                   setState(() {
                     _selectedAnswers[quiz.id] = opt;

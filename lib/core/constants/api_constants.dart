@@ -6,8 +6,8 @@ class ApiConstants {
   static String get baseUrl {
     try {
       if (Platform.isAndroid) {
-        return 'https://education-api-tb3k.onrender.com/api';
-      //  return 'http://192.168.0.142:5000/api';
+        //return 'https://education-api-tb3k.onrender.com/api';
+        return 'http://192.168.31.86:5000/api';
       }
     } catch (_) {}
     return 'https://education-api-tb3k.onrender.com/api';
@@ -18,4 +18,6 @@ class ApiConstants {
   static const dashboard = '/dashboard/student';
   static const courses = '/courses';
   static const profile = '/profile';
+  static const registerFcmToken = '/notifications/register-token';
+  static const unregisterFcmToken = '/notifications/unregister-token';
 }

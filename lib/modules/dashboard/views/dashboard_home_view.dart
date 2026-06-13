@@ -8,6 +8,7 @@ import '../../../app/routes/app_routes.dart';
 import '../controllers/dashboard_controller.dart';
 import '../models/dashboard_model.dart';
 import '../../courses/views/course_detail_view.dart';
+import '../../tests/controllers/tests_controller.dart';
 
 class DashboardHomeView extends GetView<DashboardController> {
   const DashboardHomeView({super.key});
@@ -218,7 +219,12 @@ class DashboardHomeView extends GetView<DashboardController> {
         _buildActionCard(
           Icons.quiz_outlined,
           AppStrings.actionPracticeTest,
-          () => Get.toNamed(Routes.TEST_RUNNER),
+          () {
+            controller.tabController.jumpToTab(1);
+            if (Get.isRegistered<TestsController>()) {
+              Get.find<TestsController>().fetchTests();
+            }
+          },
         ),
         _buildActionCard(
           Icons.newspaper,

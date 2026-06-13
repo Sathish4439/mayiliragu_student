@@ -9,6 +9,7 @@ class QuizQuestionCard extends StatelessWidget {
   final String? selectedOption;
   final ValueChanged<String> onOptionSelected;
   final VoidCallback onSubmit;
+  final bool showTamil;
 
   const QuizQuestionCard({
     super.key,
@@ -18,10 +19,14 @@ class QuizQuestionCard extends StatelessWidget {
     required this.selectedOption,
     required this.onOptionSelected,
     required this.onSubmit,
+    this.showTamil = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final hasTamilQuestion = quiz.questionTa != null && quiz.questionTa!.isNotEmpty;
+    final questionText = (showTamil && hasTamilQuestion) ? quiz.questionTa! : quiz.questionEn;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -33,7 +38,7 @@ class QuizQuestionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Q${index + 1}. ${quiz.questionEn}",
+            "Q${index + 1}. $questionText",
             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.textPrimary),
           ),
           const SizedBox(height: 12),
@@ -61,7 +66,12 @@ class QuizQuestionCard extends StatelessWidget {
             }
 
             final optionIndex = ['A', 'B', 'C', 'D'].indexOf(opt);
-            final optionText = optionIndex < quiz.optionsEn.length ? quiz.optionsEn[optionIndex] : '';
+            final hasTamilOptions = quiz.optionsTa != null && quiz.optionsTa!.isNotEmpty;
+            final optionText = optionIndex < quiz.optionsEn.length
+                ? ((showTamil && hasTamilOptions && optionIndex < quiz.optionsTa!.length)
+                    ? quiz.optionsTa![optionIndex]
+                    : quiz.optionsEn[optionIndex])
+                : '';
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
@@ -128,7 +138,9 @@ class QuizQuestionCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    quiz.explanationEn ?? "No explanation available.",
+                    ((showTamil && quiz.explanationTa != null && quiz.explanationTa!.isNotEmpty)
+                        ? quiz.explanationTa!
+                        : (quiz.explanationEn ?? "No explanation available.")),
                     style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                   ),
                 ],

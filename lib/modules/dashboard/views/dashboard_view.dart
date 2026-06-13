@@ -19,6 +19,7 @@ class DashboardView extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) {
     return PersistentTabView(
+      controller: controller.tabController,
       tabs: [
         PersistentTabConfig(
           screen: const DashboardHomeView(),
