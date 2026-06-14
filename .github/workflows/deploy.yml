@@ -58,6 +58,9 @@ jobs:
         run: |
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > android/firebase-service-account.json
 
+      - name: Build APK (Release)
+        run: flutter build apk --release
+
       - name: Run Fastlane (Beta to Firebase)
         if: github.ref == 'refs/heads/develop'
         working-directory: android
