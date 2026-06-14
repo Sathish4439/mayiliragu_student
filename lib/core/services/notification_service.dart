@@ -21,7 +21,7 @@ class NotificationService extends GetxService {
     );
 
     // 2. Local Notifications Setup
-    const AndroidInitializationSettings androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const AndroidInitializationSettings androidInit = AndroidInitializationSettings('launcher_icon');
     const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
     const InitializationSettings initSettings = InitializationSettings(android: androidInit, iOS: iosInit);
 
@@ -59,7 +59,7 @@ class NotificationService extends GetxService {
               channel.id,
               channel.name,
               channelDescription: channel.description,
-              icon: android?.smallIcon ?? '@mipmap/ic_launcher',
+              icon: android?.smallIcon ?? 'launcher_icon',
             ),
             iOS: const DarwinNotificationDetails(),
           ),
