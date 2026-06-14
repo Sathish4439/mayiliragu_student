@@ -37,10 +37,10 @@ class AuthController extends GetxController {
     try {
       final response = await _authRepository.login(email: email, password: password);
       if (response.statusCode == 200) {
-        final data = response.data;
-        final accessToken = data['accessToken'] as String;
-        final refreshToken = data['refreshToken'] as String;
-        final role = data['user']['role'] as String;
+        final responseData = response.data['data'] as Map<String, dynamic>;
+        final accessToken = responseData['accessToken'] as String;
+        final refreshToken = responseData['refreshToken'] as String;
+        final role = responseData['user']['role'] as String;
 
         if (role != 'STUDENT') {
           errorMessage.value = 'Access denied. Student account required.';

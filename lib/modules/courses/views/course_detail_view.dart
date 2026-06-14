@@ -40,7 +40,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
 
       if (response.statusCode == 200) {
         setState(() {
-          _courseData = CourseDetailModel.fromJson(response.data as Map<String, dynamic>);
+          _courseData = CourseDetailModel.fromJson(response.data['data'] as Map<String, dynamic>);
         });
       } else {
         setState(() {

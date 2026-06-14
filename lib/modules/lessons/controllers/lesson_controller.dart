@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:better_player_enhanced/better_player.dart';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../../core/services/secure_storage_service.dart';
@@ -57,7 +58,7 @@ class LessonController extends GetxController {
       final response = await _repository.getLessonById(id);
 
       if (response.statusCode == 200) {
-        final data = Map<String, dynamic>.from(response.data);
+        final data = Map<String, dynamic>.from(response.data['data']);
         lessonData.value = data;
 
         int startSeconds = 0;
@@ -204,7 +205,7 @@ class LessonController extends GetxController {
       isLoadingNotes.value = true;
       final response = await _notesRepository.getNotesByLesson(lessonId);
       if (response.statusCode == 200) {
-        notes.value = List<Map<String, dynamic>>.from(response.data);
+        notes.value = List<Map<String, dynamic>>.from(response.data['data']);
       }
     } catch (e) {
       debugPrint('Error fetching notes: $e');
@@ -284,6 +285,17 @@ class LessonController extends GetxController {
     if (_currentLessonId == null || lessonData.value == null) return;
     
     final downloadService = Get.find<VideoDownloadService>();
+    final secureStorage = Get.find<SecureStorageService>();
+    final customPath = await secureStorage.getDownloadDirPath();
+
+    if (customPath == null || customPath.isEmpty) {
+      final bool picked = await _promptAndSelectDownloadDirectory(downloadService);
+      if (!picked) {
+        AppToast.error('Download cancelled. Please select a download folder.');
+        return;
+      }
+    }
+
     final driveFileId = lessonData.value!['driveFileId']?.toString() ?? '';
     if (driveFileId.isEmpty) {
       AppToast.error('No video source file found.');
@@ -354,6 +366,47 @@ class LessonController extends GetxController {
     betterPlayerController?.dispose();
     await _initializeVideoPlayer(driveFileId, startSeconds: startSecs);
     update();
+  }
+
+  Future<bool> _promptAndSelectDownloadDirectory(VideoDownloadService downloadService) async {
+    bool confirm = false;
+    await Get.dialog(
+      AlertDialog(
+        title: const Text('Select Download Folder'),
+        content: const Text(
+          'To download lessons offline, please select a storage folder on your device.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              confirm = true;
+              Get.back();
+            },
+            child: const Text('Choose Folder', style: TextStyle(color: Color(0xFF0D47A1), fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (!confirm) return false;
+
+    try {
+      final String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+      if (selectedDirectory != null && selectedDirectory.isNotEmpty) {
+        final success = await downloadService.setCustomDownloadDirectory(selectedDirectory);
+        if (success) {
+          AppToast.success('Download folder configured successfully!');
+          return true;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error selecting download directory: $e');
+    }
+    return false;
   }
 
   @override

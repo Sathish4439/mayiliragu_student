@@ -373,14 +373,23 @@ class LessonDetailView extends GetView<LessonController> {
                   onPressed: () {
                     Get.dialog(
                       AlertDialog(
-                        title: const Text('Delete Offline Video'),
+                        title: const Text('Offline Video Actions'),
                         content: const Text(
-                            'Are you sure you want to delete this downloaded video from your device storage?'),
+                            'Choose an action for this downloaded video.'),
                         actions: [
                           TextButton(
                             onPressed: () => Get.back(),
                             child: const Text('Cancel',
                                 style: TextStyle(color: Colors.grey)),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              Get.back();
+                              await controller.deleteDownloadedVideo();
+                              controller.startVideoDownload();
+                            },
+                            child: const Text('Redownload',
+                                style: TextStyle(color: Color(0xFF0D47A1))),
                           ),
                           TextButton(
                             onPressed: () {

@@ -8,6 +8,7 @@ class SecureStorageService extends GetxService {
   static const _refreshTokenKey = 'refresh_token';
   static const _userRoleKey = 'user_role';
   static const _hasSeenOnboardingKey = 'has_seen_onboarding';
+  static const _downloadDirPathKey = 'download_dir_path';
 
   Future<bool> hasSeenOnboarding() async {
     final value = await _storage.read(key: _hasSeenOnboardingKey);
@@ -16,6 +17,14 @@ class SecureStorageService extends GetxService {
 
   Future<void> setHasSeenOnboarding() async {
     await _storage.write(key: _hasSeenOnboardingKey, value: 'true');
+  }
+
+  Future<String?> getDownloadDirPath() async {
+    return await _storage.read(key: _downloadDirPathKey);
+  }
+
+  Future<void> setDownloadDirPath(String path) async {
+    await _storage.write(key: _downloadDirPathKey, value: path);
   }
 
   Future<void> saveTokens({
@@ -36,5 +45,6 @@ class SecureStorageService extends GetxService {
     await _storage.delete(key: _accessTokenKey);
     await _storage.delete(key: _refreshTokenKey);
     await _storage.delete(key: _userRoleKey);
+    await _storage.delete(key: _downloadDirPathKey);
   }
 }

@@ -46,7 +46,7 @@ class DashboardController extends GetxController {
       }
 
       if (response.statusCode == 200) {
-        final data = response.data as Map<String, dynamic>;
+        final data = response.data['data'] as Map<String, dynamic>;
         dashboardData.value = DashboardModel.fromJson(data, profile: profile);
       } else {
         errorMessage.value = response.data['message'] ?? 'Failed to load dashboard';

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/toast_helper.dart';
 import '../controllers/book_store_controller.dart';
 import '../models/book_model.dart';
 
@@ -52,6 +53,197 @@ class _BookCheckoutViewState extends State<BookCheckoutView> {
     super.dispose();
   }
 
+  List<BookOrderModel> _getUniqueAddresses() {
+    final Map<String, BookOrderModel> uniqueMap = {};
+    for (final order in controller.myOrdersList) {
+      final address = order.shippingAddress;
+      final name = order.shippingName;
+      final phone = order.shippingPhone;
+      if (address != null &&
+          address.trim().isNotEmpty &&
+          name != null &&
+          name.trim().isNotEmpty &&
+          phone != null &&
+          phone.trim().isNotEmpty) {
+        final key =
+            "${name.trim().toLowerCase()}_${phone.trim().toLowerCase()}_${address.trim().toLowerCase()}";
+        if (!uniqueMap.containsKey(key)) {
+          uniqueMap[key] = order;
+        }
+      }
+    }
+    return uniqueMap.values.toList();
+  }
+
+  void _populateAddress(BookOrderModel order) {
+    _nameController.text = order.shippingName ?? '';
+    _phoneController.text = order.shippingPhone ?? '';
+
+    final addressStr = order.shippingAddress ?? '';
+
+    try {
+      // 1. Extract PIN code (6 digits at the end)
+      final pinReg = RegExp(r'-\s?(\d{6})$');
+      final pinMatch = pinReg.firstMatch(addressStr);
+      String pin = '';
+      String mainAddress = addressStr;
+      if (pinMatch != null) {
+        pin = pinMatch.group(1) ?? '';
+        mainAddress = addressStr.substring(0, pinMatch.start).trim();
+        if (mainAddress.endsWith('-')) {
+          mainAddress = mainAddress.substring(0, mainAddress.length - 1).trim();
+        }
+      }
+      _pinController.text = pin;
+
+      // 2. Extract State (after the last remaining comma)
+      final lastCommaIdx = mainAddress.lastIndexOf(',');
+      String state = 'Tamil Nadu';
+      if (lastCommaIdx != -1) {
+        state = mainAddress.substring(lastCommaIdx + 1).trim();
+        mainAddress = mainAddress.substring(0, lastCommaIdx).trim();
+      }
+      _stateController.text = state;
+
+      // 3. Extract City (after the last remaining comma after extracting state)
+      final cityCommaIdx = mainAddress.lastIndexOf(',');
+      String city = '';
+      if (cityCommaIdx != -1) {
+        city = mainAddress.substring(cityCommaIdx + 1).trim();
+        mainAddress = mainAddress.substring(0, cityCommaIdx).trim();
+      } else {
+        city = mainAddress;
+        mainAddress = '';
+      }
+      _cityController.text = city;
+
+      // 4. Extract Landmark and Street
+      String street = '';
+      String landmark = '';
+      final landmarkIdx = mainAddress.indexOf(', Landmark:');
+      if (landmarkIdx != -1) {
+        street = mainAddress.substring(0, landmarkIdx).trim();
+        landmark = mainAddress.substring(landmarkIdx + 11).trim();
+      } else {
+        street = mainAddress;
+      }
+
+      _streetController.text = street;
+      _landmarkController.text = landmark;
+    } catch (e) {
+      _streetController.text = addressStr;
+      _landmarkController.text = '';
+      _cityController.text = '';
+      _stateController.text = 'Tamil Nadu';
+      _pinController.text = '';
+    }
+  }
+
+  void _showSavedAddressesBottomSheet() {
+    final savedAddresses = _getUniqueAddresses();
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Saved Addresses",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 20),
+                  onPressed: () => Get.back(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: savedAddresses.length,
+                itemBuilder: (context, index) {
+                  final order = savedAddresses[index];
+                  return Card(
+                    elevation: 0,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: Colors.grey.shade100),
+                    ),
+                    color: const Color(0xFFFAF9FF),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () {
+                        _populateAddress(order);
+                        Get.back();
+                        AppToast.success('Address pre-filled!');
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  order.shippingName ?? '',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                Text(
+                                  order.shippingPhone ?? '',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              order.shippingAddress ?? '',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+    );
+  }
+
   double get subTotal {
     final price = widget.format == 'HARD_COPY'
         ? (widget.book.priceHardCopy ?? 0.0)
@@ -86,7 +278,31 @@ class _BookCheckoutViewState extends State<BookCheckoutView> {
 
               // Shipping Address Form (Only for Hard Copy)
               if (widget.format == 'HARD_COPY') ...[
-                const Text("Delivery Address", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Delivery Address",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14)),
+                    if (_getUniqueAddresses().isNotEmpty)
+                      TextButton(
+                        onPressed: _showSavedAddressesBottomSheet,
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text(
+                          "Select from saved addresses",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.brandPurple,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
                 const SizedBox(height: 10),
                 _buildAddressForm(),
                 const SizedBox(height: 20),
