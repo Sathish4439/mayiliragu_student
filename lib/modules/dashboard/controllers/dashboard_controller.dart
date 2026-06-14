@@ -1,18 +1,22 @@
 import 'package:get/get.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../core/services/secure_storage_service.dart';
+import '../../../core/services/notification_service.dart';
 import '../repositories/dashboard_repository.dart';
+import '../models/dashboard_model.dart';
 
 class DashboardController extends GetxController {
   final DashboardRepository _repository;
   final SecureStorageService _storage = Get.find<SecureStorageService>();
 
+  final tabController = PersistentTabController(initialIndex: 0);
+
   final isLoading = false.obs;
   final errorMessage = ''.obs;
 
-  final enrolledCourses = <dynamic>[].obs;
-  final continueLearning = Rxn<dynamic>();
-  final recentlyWatched = <dynamic>[].obs;
+  // Strongly typed dashboard data model
+  final dashboardData = Rxn<DashboardModel>();
 
   DashboardController(this._repository);
 
@@ -27,11 +31,23 @@ class DashboardController extends GetxController {
     errorMessage.value = '';
     try {
       final response = await _repository.getStudentDashboard();
+      
+      UserProfile? profile;
+      try {
+        final profileResponse = await _repository.getStudentProfile();
+        if (profileResponse.statusCode == 200) {
+          final profileJson = profileResponse.data['data'] as Map<String, dynamic>?;
+          if (profileJson != null) {
+            profile = UserProfile.fromJson(profileJson);
+          }
+        }
+      } catch (_) {
+        // Suppress profile fetch error so dashboard still loads
+      }
+
       if (response.statusCode == 200) {
-        final data = response.data;
-        enrolledCourses.value = data['enrolledCourses'] ?? [];
-        continueLearning.value = data['continueLearning'];
-        recentlyWatched.value = data['recentlyWatched'] ?? [];
+        final data = response.data['data'] as Map<String, dynamic>;
+        dashboardData.value = DashboardModel.fromJson(data, profile: profile);
       } else {
         errorMessage.value = response.data['message'] ?? 'Failed to load dashboard';
       }
@@ -44,8 +60,17 @@ class DashboardController extends GetxController {
 
   Future<void> logout() async {
     try {
+      if (Get.isRegistered<NotificationService>()) {
+        await Get.find<NotificationService>().unregisterToken();
+      }
       await _storage.clearAll();
     } catch (_) {}
     Get.offAllNamed(Routes.LOGIN);
+  }
+
+  @override
+  void onClose() {
+    tabController.dispose();
+    super.onClose();
   }
 }

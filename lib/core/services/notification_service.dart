@@ -1,0 +1,140 @@
+import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
+import '../network/api_client.dart';
+import '../constants/api_constants.dart';
+import '../services/secure_storage_service.dart';
+
+class NotificationService extends GetxService {
+  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final ApiClient _apiClient = Get.find<ApiClient>();
+  final SecureStorageService _storage = Get.find<SecureStorageService>();
+
+  Future<void> initialize() async {
+    // 1. Request Permission
+    await _fcm.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    // 2. Local Notifications Setup
+    const AndroidInitializationSettings androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
+    const InitializationSettings initSettings = InitializationSettings(android: androidInit, iOS: iosInit);
+
+    await _localNotifications.initialize(
+      settings: initSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        _handleNotificationClick(response.payload);
+      },
+    );
+
+    // Create Android notification channel
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'high_importance_channel',
+      'High Importance Notifications',
+      description: 'This channel is used for important notifications.',
+      importance: Importance.max,
+    );
+
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+
+    // 3. Foreground Listening
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      final notification = message.notification;
+      final android = message.notification?.android;
+
+      if (notification != null) {
+        _localNotifications.show(
+          id: notification.hashCode,
+          title: notification.title,
+          body: notification.body,
+          notificationDetails: NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              channelDescription: channel.description,
+              icon: android?.smallIcon ?? '@mipmap/ic_launcher',
+            ),
+            iOS: const DarwinNotificationDetails(),
+          ),
+          payload: message.data['route'],
+        );
+      }
+    });
+
+    // 4. Background Click Handling
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      _handleNotificationClick(message.data['route']);
+    });
+
+    // 5. App opened from terminated state via notification click
+    final initialMessage = await _fcm.getInitialMessage();
+    if (initialMessage != null) {
+      _handleNotificationClick(initialMessage.data['route']);
+    }
+
+    // 6. Token refresh handler
+    _fcm.onTokenRefresh.listen((token) async {
+      await registerToken(token);
+    });
+  }
+
+  void _handleNotificationClick(String? route) {
+    if (route != null && route.isNotEmpty) {
+      Get.toNamed(route);
+    }
+  }
+
+  Future<void> syncToken() async {
+    try {
+      final token = await _storage.getAccessToken();
+      if (token != null) {
+        final fcmToken = await _fcm.getToken();
+        if (fcmToken != null) {
+          await registerToken(fcmToken);
+        }
+      }
+    } catch (e) {
+      print('FCM Token sync failed: $e');
+    }
+  }
+
+  Future<void> registerToken(String fcmToken) async {
+    try {
+      final accessToken = await _storage.getAccessToken();
+      if (accessToken == null) return; // Not logged in yet
+      
+      await _apiClient.post(
+        ApiConstants.registerFcmToken,
+        data: {
+          'token': fcmToken,
+          'deviceType': Platform.isAndroid ? 'ANDROID' : 'IOS',
+        },
+      );
+      print('FCM Token registered successfully: $fcmToken');
+    } catch (e) {
+      print('Failed to register FCM token with backend: $e');
+    }
+  }
+
+  Future<void> unregisterToken() async {
+    try {
+      final fcmToken = await _fcm.getToken();
+      if (fcmToken != null) {
+        await _apiClient.post(
+          ApiConstants.unregisterFcmToken,
+          data: {'token': fcmToken},
+        );
+        print('FCM Token unregistered successfully.');
+      }
+    } catch (e) {
+      print('Failed to unregister FCM token: $e');
+    }
+  }
+}

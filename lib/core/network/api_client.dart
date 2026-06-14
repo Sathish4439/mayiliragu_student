@@ -74,8 +74,9 @@ class ApiClient {
                   );
 
                   if (refreshResponse.statusCode == 200) {
-                    final newAccessToken = refreshResponse.data['accessToken'];
-                    final newRefreshToken = refreshResponse.data['refreshToken'];
+                    final responseData = refreshResponse.data['data'];
+                    final newAccessToken = responseData['accessToken'];
+                    final newRefreshToken = responseData['refreshToken'];
                     final role = await _storage.getUserRole() ?? '';
 
                     await _storage.saveTokens(
@@ -120,5 +121,9 @@ class ApiClient {
 
   Future<Response> put(String path, {dynamic data}) async {
     return await dio.put(path, data: data);
+  }
+
+  Future<Response> delete(String path, {dynamic data}) async {
+    return await dio.delete(path, data: data);
   }
 }

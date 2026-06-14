@@ -6,7 +6,7 @@ import '../repositories/course_repository.dart';
 class CourseBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<CourseRepository>(() => CourseRepository(Get.find<ApiClient>()));
-    Get.lazyPut<CourseController>(() => CourseController(Get.find<CourseRepository>()));
+    Get.lazyPut<CourseRepository>(() => CourseRepository(Get.find<ApiClient>()), fenix: true);
+    Get.lazyPut<CourseController>(() => CourseController(Get.find<CourseRepository>()), fenix: true);
   }
 }

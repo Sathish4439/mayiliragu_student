@@ -51,10 +51,11 @@ class CourseController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        final data = response.data['data'] as List<dynamic>;
+        final responseData = response.data['data'];
+        final data = responseData['data'] as List<dynamic>;
         coursesList.assignAll(data);
         
-        final meta = response.data['meta'];
+        final meta = responseData['meta'];
         if (currentPage.value >= (meta['totalPages'] as num)) {
           hasMore.value = false;
         }
@@ -79,10 +80,11 @@ class CourseController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        final data = response.data['data'] as List<dynamic>;
+        final responseData = response.data['data'];
+        final data = responseData['data'] as List<dynamic>;
         coursesList.addAll(data);
         
-        final meta = response.data['meta'];
+        final meta = responseData['meta'];
         if (currentPage.value >= (meta['totalPages'] as num)) {
           hasMore.value = false;
         }

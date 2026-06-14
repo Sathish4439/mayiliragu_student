@@ -20,9 +20,13 @@ class AppToast {
         message,
         style: AppTextStyles.body.copyWith(color: Colors.white70, fontSize: 13),
       ),
-      icon: const Icon(Icons.check_circle_outline, color: Colors.white, size: 28),
+      icon: const Icon(
+        Icons.check_circle_outline,
+        color: Colors.white,
+        size: 28,
+      ),
       backgroundColor: AppColors.accentDark,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       borderRadius: 12,
       margin: const EdgeInsets.all(16),
       duration: const Duration(seconds: 3),
@@ -31,7 +35,7 @@ class AppToast {
           color: Colors.black.withAlpha(40),
           blurRadius: 8,
           offset: const Offset(0, 4),
-        )
+        ),
       ],
     );
   }
@@ -52,7 +56,7 @@ class AppToast {
       ),
       icon: const Icon(Icons.error_outline, color: Colors.white, size: 28),
       backgroundColor: AppColors.error,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       borderRadius: 12,
       margin: const EdgeInsets.all(16),
       duration: const Duration(seconds: 4),
@@ -61,7 +65,7 @@ class AppToast {
           color: Colors.black.withAlpha(40),
           blurRadius: 8,
           offset: const Offset(0, 4),
-        )
+        ),
       ],
     );
   }
@@ -78,11 +82,18 @@ class AppToast {
       ),
       messageText: Text(
         message,
-        style: AppTextStyles.body.copyWith(color: AppColors.textSecondary, fontSize: 13),
+        style: AppTextStyles.body.copyWith(
+          color: AppColors.textSecondary,
+          fontSize: 13,
+        ),
       ),
-      icon: const Icon(Icons.warning_amber_outlined, color: AppColors.primary, size: 28),
+      icon: const Icon(
+        Icons.warning_amber_outlined,
+        color: AppColors.primary,
+        size: 28,
+      ),
       backgroundColor: AppColors.backgroundEnd,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       borderRadius: 12,
       margin: const EdgeInsets.all(16),
       duration: const Duration(seconds: 3),
@@ -93,7 +104,7 @@ class AppToast {
           color: Colors.black.withAlpha(20),
           blurRadius: 8,
           offset: const Offset(0, 4),
-        )
+        ),
       ],
     );
   }
@@ -114,7 +125,7 @@ class AppToast {
       ),
       icon: const Icon(Icons.info_outline, color: Colors.white, size: 28),
       backgroundColor: AppColors.primary,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       borderRadius: 12,
       margin: const EdgeInsets.all(16),
       duration: const Duration(seconds: 3),
@@ -123,7 +134,7 @@ class AppToast {
           color: Colors.black.withAlpha(40),
           blurRadius: 8,
           offset: const Offset(0, 4),
-        )
+        ),
       ],
     );
   }

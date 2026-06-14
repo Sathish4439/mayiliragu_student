@@ -19,4 +19,17 @@ class LessonRepository {
       },
     );
   }
+
+  Future<dio_instance.Response> markAsComplete(String lessonId) async {
+    return await _apiClient.post(
+      '/progress/complete',
+      data: {
+        'lessonId': lessonId,
+      },
+    );
+  }
+
+  Future<dio_instance.Response> logVideoDownload(String lessonId) async {
+    return await _apiClient.post('/lessons/$lessonId/download');
+  }
 }

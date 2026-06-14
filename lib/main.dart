@@ -1,24 +1,49 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'app/routes/app_pages.dart';
 import 'app/routes/app_routes.dart';
 import 'core/network/api_client.dart';
 import 'core/services/secure_storage_service.dart';
+import 'core/services/notification_service.dart';
+import 'core/services/video_download_service.dart';
 import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   // Initialize Core Services
   final storage = Get.put(SecureStorageService());
   Get.put(ApiClient());
+  
+  final downloadService = Get.put(VideoDownloadService());
+  await downloadService.init();
+  
+  final notifications = Get.put(NotificationService());
+  await notifications.initialize();
 
   final token = await storage.getAccessToken();
-  final role = await storage.getUserRole();
+  if (token != null) {
+    // Sync FCM token if already logged in
+    unawaited(notifications.syncToken());
+  }
 
-  String initialRoute = AppPages.INITIAL;
-  if (token != null && role == 'STUDENT') {
-    initialRoute = Routes.DASHBOARD;
+  final role = await storage.getUserRole();
+  final hasSeenOnboarding = await storage.hasSeenOnboarding();
+
+  String initialRoute = Routes.ONBOARDING;
+  if (hasSeenOnboarding) {
+    if (token != null && role == 'STUDENT') {
+      initialRoute = Routes.DASHBOARD;
+    } else {
+      initialRoute = Routes.LOGIN;
+    }
   }
 
   runApp(MyApp(initialRoute: initialRoute));
@@ -31,7 +56,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'EducationApp LMS',
+      title: 'Education App',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       initialRoute: initialRoute,

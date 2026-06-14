@@ -1,271 +1,189 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
-import '../../../app/routes/app_routes.dart';
+import '../../../core/constants/app_strings.dart';
 import '../controllers/dashboard_controller.dart';
+import 'dashboard_home_view.dart';
+import '../../tests/views/tests_view.dart';
+import '../../tests/controllers/tests_controller.dart';
+import '../../courses/views/course_list_view.dart';
+import '../../courses/controllers/course_controller.dart';
+import 'progress_placeholder_view.dart';
+import '../../profile/views/profile_view.dart';
+import '../../profile/controllers/profile_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Dashboard', style: AppTextStyles.heading.copyWith(fontSize: 20)),
-        backgroundColor: AppColors.backgroundStart,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_outline, color: AppColors.textPrimary),
-            onPressed: () => Get.toNamed(Routes.PROFILE),
+    return PersistentTabView(
+      controller: controller.tabController,
+      tabs: [
+        PersistentTabConfig(
+          screen: const DashboardHomeView(),
+          item: ItemConfig(
+            icon: const Icon(Icons.home_filled),
+            title: AppStrings.tabHome,
           ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: AppColors.textPrimary),
-            onPressed: controller.logout,
+        ),
+        PersistentTabConfig(
+          screen: const TestsView(),
+          item: ItemConfig(
+            icon: const Icon(Icons.assignment_outlined),
+            title: AppStrings.tabTests,
+          ),
+        ),
+        PersistentTabConfig(
+          screen: const CourseListView(),
+          item: ItemConfig(
+            icon: const Icon(Icons.menu_book),
+            title: AppStrings.tabLearn,
+          ),
+        ),
+        PersistentTabConfig(
+          screen: const ProgressPlaceholderView(),
+          item: ItemConfig(
+            icon: const Icon(Icons.trending_up),
+            title: AppStrings.tabProgress,
+          ),
+        ),
+        PersistentTabConfig(
+          screen: const ProfileView(),
+          item: ItemConfig(
+            icon: const Icon(Icons.more_horiz),
+            title: AppStrings.tabMore,
+          ),
+        ),
+      ],
+      navBarBuilder: (navBarConfig) => CustomNavBar(
+        navBarConfig: navBarConfig,
+      ),
+    );
+  }
+}
+
+class CustomNavBar extends StatelessWidget {
+  final NavBarConfig navBarConfig;
+
+  const CustomNavBar({super.key, required this.navBarConfig});
+
+  void _onTabChanged(int index) {
+    switch (index) {
+      case 0:
+        if (Get.isRegistered<DashboardController>()) {
+          Get.find<DashboardController>().fetchDashboardData();
+        }
+        break;
+      case 1:
+        if (Get.isRegistered<TestsController>()) {
+          Get.find<TestsController>().fetchTests();
+        }
+        break;
+      case 2:
+        if (Get.isRegistered<CourseController>()) {
+          Get.find<CourseController>().fetchCourses();
+        }
+        break;
+      case 4:
+        if (Get.isRegistered<ProfileController>()) {
+          Get.find<ProfileController>().fetchProfile();
+        }
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    return Container(
+      height: 72 + bottomPadding,
+      padding: EdgeInsets.only(bottom: bottomPadding),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, -3),
           ),
         ],
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppColors.backgroundStart,
-              AppColors.secondary,
-              AppColors.backgroundEnd,
-            ],
-          ),
-        ),
-        child: Obx(() {
-          if (controller.isLoading.value) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.accent),
-            );
-          }
-
-          if (controller.errorMessage.value.isNotEmpty) {
-            return Center(
-              child: Text(
-                controller.errorMessage.value,
-                style: AppTextStyles.body.copyWith(color: AppColors.error),
-              ),
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: controller.fetchDashboardData,
-            color: AppColors.accent,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildContinueLearning(),
-                  const SizedBox(height: 24),
-                  _buildMyCourses(),
-                  const SizedBox(height: 24),
-                  _buildRecentlyWatched(),
-                ],
-              ),
-            ),
-          );
-        }),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: navBarConfig.items.map((item) {
+          int index = navBarConfig.items.indexOf(item);
+          bool isActive = navBarConfig.selectedIndex == index;
+          return _buildNavBarItem(item, isActive, () {
+            navBarConfig.onItemSelected(index);
+            _onTabChanged(index);
+          });
+        }).toList(),
       ),
     );
   }
 
-  Widget _buildContinueLearning() {
-    final continueLearning = controller.continueLearning.value;
-    if (continueLearning == null) return const SizedBox.shrink();
-
-    final watched = continueLearning['watchedSeconds'] ?? 0;
-    final duration = continueLearning['duration'] ?? 1;
-    final progress = watched / duration;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Continue Learning', style: AppTextStyles.subheading.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        Card(
-          color: AppColors.cardBg,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.accentDark.withAlpha(50),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.play_arrow, color: AppColors.accent, size: 28),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        continueLearning['lessonTitle'] ?? '',
-                        style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      LinearProgressIndicator(
-                        value: progress,
-                        backgroundColor: AppColors.border,
-                        color: AppColors.accent,
-                        minHeight: 6,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${(progress * 100).toInt()}% completed',
-                        style: AppTextStyles.subheading.copyWith(fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+  Widget _buildNavBarItem(
+    ItemConfig item,
+    bool isActive,
+    VoidCallback onTap,
+  ) {
+    if (isActive) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.brandPurple,
+          borderRadius: BorderRadius.circular(24),
         ),
-      ],
-    );
-  }
-
-  Widget _buildMyCourses() {
-    final courses = controller.enrolledCourses;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text('My Courses', style: AppTextStyles.subheading.copyWith(fontWeight: FontWeight.bold)),
-            TextButton(
-              onPressed: () => Get.toNamed(Routes.COURSES),
-              child: const Text('See All', style: TextStyle(color: AppColors.accent)),
+            IconTheme(
+              data: const IconThemeData(color: Colors.white, size: 20),
+              child: item.icon,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              item.title ?? '',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        if (courses.isEmpty)
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Text(
-                'No enrolled courses yet.',
-                style: AppTextStyles.subheading.copyWith(fontSize: 14),
+      );
+    }
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconTheme(
+              data: const IconThemeData(color: Color(0xFF9093A3), size: 20),
+              child: item.icon,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              item.title ?? '',
+              style: const TextStyle(
+                color: Color(0xFF9093A3),
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
               ),
             ),
-          )
-        else
-          ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: courses.length,
-          itemBuilder: (context, index) {
-            final course = courses[index];
-            final progress = (course['progressPercentage'] ?? 0.0) / 100.0;
-
-            return Card(
-              color: AppColors.cardBg,
-              margin: const EdgeInsets.only(bottom: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    course['thumbnail'] ?? '',
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 50,
-                      height: 50,
-                      color: AppColors.border,
-                      child: const Icon(Icons.book, color: AppColors.textSecondary),
-                    ),
-                  ),
-                ),
-                title: Text(
-                  course['title'] ?? '',
-                  style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 4),
-                    Text(
-                      '${course['totalLessons'] ?? 0} lessons',
-                      style: AppTextStyles.subheading.copyWith(fontSize: 12),
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: LinearProgressIndicator(
-                            value: progress,
-                            backgroundColor: AppColors.border,
-                            color: AppColors.accent,
-                            minHeight: 4,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${(progress * 100).toStringAsFixed(1)}%',
-                          style: AppTextStyles.subheading.copyWith(fontSize: 10, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+          ],
         ),
-      ],
-    );
-  }
-
-  Widget _buildRecentlyWatched() {
-    final recent = controller.recentlyWatched;
-    if (recent.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Recently Watched', style: AppTextStyles.subheading.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: recent.length,
-          itemBuilder: (context, index) {
-            final lesson = recent[index];
-            return Card(
-              color: AppColors.cardBg,
-              margin: const EdgeInsets.only(bottom: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: ListTile(
-                leading: const Icon(Icons.history, color: AppColors.textSecondary),
-                title: Text(
-                  lesson['lessonTitle'] ?? '',
-                  style: AppTextStyles.body,
-                ),
-              ),
-            );
-          },
-        ),
-      ],
+      ),
     );
   }
 }
