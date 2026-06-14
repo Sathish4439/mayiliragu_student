@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
-import 'package:mayiliragu/core/network/api_client.dart';
-import 'package:mayiliragu/core/services/secure_storage_service.dart';
-import 'package:mayiliragu/core/constants/api_constants.dart';
+import 'package:education_app/core/network/api_client.dart';
+import 'package:education_app/core/services/secure_storage_service.dart';
+import 'package:education_app/core/constants/api_constants.dart';
 
 class MockSecureStorageService extends SecureStorageService {
   String? accessToken;
