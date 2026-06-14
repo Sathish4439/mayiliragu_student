@@ -43,3 +43,16 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Build scripts
+build_apk.bat
+build_apk.ps1
+
+# Fastlane & Key Stores
+android/fastlane/report.xml
+android/fastlane/Preview.html
+android/play_store_key.json
+android/app/upload-keystore.jks
+android/key.properties
+android/firebase-service-account.json
+

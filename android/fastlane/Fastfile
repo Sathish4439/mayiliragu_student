@@ -1,0 +1,34 @@
+default_platform(:android)
+
+platform :android do
+  desc "Submit a new Beta Build to Firebase App Distribution"
+  lane :beta do
+    # Run gradle build
+    gradle(
+      task: "assemble",
+      build_type: "Release"
+    )
+
+    # Distribute APK to Firebase App Distribution
+    firebase_app_distribution(
+      app: ENV["FIREBASE_APP_ID_ANDROID"],
+      testers: ENV["FIREBASE_TESTERS"] || "",
+      release_notes: "Beta build from GitHub Actions CI/CD"
+    )
+  end
+
+  desc "Deploy a new version to Google Play Store"
+  lane :release do
+    # Run gradle build for App Bundle
+    gradle(
+      task: "bundle",
+      build_type: "Release"
+    )
+
+    # Upload AAB to Play Store
+    upload_to_play_store(
+      track: "production",
+      aab: "../build/app/outputs/bundle/release/app-release.aab"
+    )
+  end
+end

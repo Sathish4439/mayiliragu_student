@@ -1,0 +1,81 @@
+name: Flutter CI/CD (Fastlane)
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+
+      - name: Cache Pub packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Setup Ruby and Bundler
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: true
+          working-directory: android
+
+      - name: Decode Android Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: Create key.properties file
+        run: |
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=app/upload-keystore.jks" >> android/key.properties
+
+      - name: Create Firebase Service Account File
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > android/firebase-service-account.json
+
+      - name: Create Google Play Credentials File
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "${{ secrets.PLAY_STORE_CONFIG_JSON }}" > android/play_store_key.json
+
+      - name: Run Fastlane (Beta to Firebase)
+        if: github.ref == 'refs/heads/develop'
+        working-directory: android
+        run: bundle exec fastlane beta
+        env:
+          FIREBASE_APP_ID_ANDROID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: "firebase-service-account.json"
+          FIREBASE_TESTERS: ${{ secrets.FIREBASE_TESTERS }}
+
+      - name: Run Fastlane (Production to Play Store)
+        if: github.ref == 'refs/heads/main'
+        working-directory: android
+        run: bundle exec fastlane release
+        env:
+          PLAY_STORE_CONFIG_JSON_PATH: "play_store_key.json"

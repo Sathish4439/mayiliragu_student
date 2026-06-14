@@ -1,0 +1,2 @@
+json_key_file(ENV["PLAY_STORE_CONFIG_JSON_PATH"] || "") # Path to the Google Play service account JSON key file
+package_name("com.learning.mayiliragu.mayiliragu") # App Package name
