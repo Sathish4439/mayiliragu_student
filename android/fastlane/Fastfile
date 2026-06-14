@@ -3,24 +3,30 @@ default_platform(:android)
 platform :android do
   desc "Submit a new Beta Build to Firebase App Distribution"
   lane :beta do
+    groups = ENV["FIREBASE_GROUPS"].to_s.strip
+    groups = "android" if groups.empty?
+
     # Distribute APK to Firebase App Distribution
     firebase_app_distribution(
-      app: ENV["FIREBASE_APP_ID_ANDROID"],
+      app: ENV["FIREBASE_APP_ID_ANDROID"].to_s.strip,
       apk_path: "../build/app/outputs/flutter-apk/app-release.apk",
-      testers: ENV["FIREBASE_TESTERS"] || "",
-      groups: ENV["FIREBASE_GROUPS"] || "android",
+      testers: ENV["FIREBASE_TESTERS"].to_s.strip,
+      groups: groups,
       release_notes: "Beta build from GitHub Actions CI/CD"
     )
   end
 
   desc "Deploy a new version to Firebase App Distribution (Release)"
   lane :release do
+    groups = ENV["FIREBASE_GROUPS"].to_s.strip
+    groups = "android" if groups.empty?
+
     # Distribute APK to Firebase App Distribution
     firebase_app_distribution(
-      app: ENV["FIREBASE_APP_ID_ANDROID"],
+      app: ENV["FIREBASE_APP_ID_ANDROID"].to_s.strip,
       apk_path: "../build/app/outputs/flutter-apk/app-release.apk",
-      testers: ENV["FIREBASE_TESTERS"] || "",
-      groups: ENV["FIREBASE_GROUPS"] || "android",
+      testers: ENV["FIREBASE_TESTERS"].to_s.strip,
+      groups: groups,
       release_notes: "Production release build from GitHub Actions CI/CD"
     )
   end
