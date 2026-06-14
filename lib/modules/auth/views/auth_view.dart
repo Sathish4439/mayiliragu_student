@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/toast_helper.dart';
 import '../controllers/auth_controller.dart';
 
@@ -42,38 +43,21 @@ class AuthView extends GetView<AuthController> {
                     size: 38,
                   ),
                 ),
-                color: AppColors.cardBg,
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('EducationApp LMS', style: AppTextStyles.heading),
-                      const SizedBox(height: 8),
-                      Text('Secure Sign In', style: AppTextStyles.subheading),
-                      const SizedBox(height: 32),
-                      TextField(
-                        controller: controller.emailController,
-                        style: TextStyle(color: AppColors.textPrimary),
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          labelStyle: TextStyle(color: AppColors.textSecondary),
-                          prefixIcon: Icon(
-                            Icons.email_outlined,
-                            color: AppColors.textSecondary,
-                          ),
-                          filled: true,
-                          fillColor: AppColors.textPrimary.withAlpha(
-                            12,
-                          ), // equivalent to withOpacity(0.05)
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: AppColors.border,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
+                const SizedBox(height: 24),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.cardBg,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('EducationApp LMS', style: AppTextStyles.heading),
+                        const SizedBox(height: 8),
+                        Text('Secure Sign In', style: AppTextStyles.subheading),
+                        const SizedBox(height: 32),
 
                         // Email input label
                         const Text(

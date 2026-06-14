@@ -55,14 +55,8 @@ jobs:
           echo "storeFile=app/upload-keystore.jks" >> android/key.properties
 
       - name: Create Firebase Service Account File
-        if: github.ref == 'refs/heads/develop'
         run: |
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > android/firebase-service-account.json
-
-      - name: Create Google Play Credentials File
-        if: github.ref == 'refs/heads/main'
-        run: |
-          echo "${{ secrets.PLAY_STORE_CONFIG_JSON }}" > android/play_store_key.json
 
       - name: Run Fastlane (Beta to Firebase)
         if: github.ref == 'refs/heads/develop'
@@ -72,10 +66,14 @@ jobs:
           FIREBASE_APP_ID_ANDROID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
           GOOGLE_APPLICATION_CREDENTIALS: "firebase-service-account.json"
           FIREBASE_TESTERS: ${{ secrets.FIREBASE_TESTERS }}
+          FIREBASE_GROUPS: android
 
-      - name: Run Fastlane (Production to Play Store)
+      - name: Run Fastlane (Production to Firebase)
         if: github.ref == 'refs/heads/main'
         working-directory: android
         run: bundle exec fastlane release
         env:
-          PLAY_STORE_CONFIG_JSON_PATH: "play_store_key.json"
+          FIREBASE_APP_ID_ANDROID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: "firebase-service-account.json"
+          FIREBASE_TESTERS: ${{ secrets.FIREBASE_TESTERS }}
+          FIREBASE_GROUPS: android

@@ -13,22 +13,36 @@ platform :android do
     firebase_app_distribution(
       app: ENV["FIREBASE_APP_ID_ANDROID"],
       testers: ENV["FIREBASE_TESTERS"] || "",
+      groups: ENV["FIREBASE_GROUPS"] || "",
       release_notes: "Beta build from GitHub Actions CI/CD"
     )
   end
 
-  desc "Deploy a new version to Google Play Store"
+  desc "Deploy a new version to Firebase App Distribution (Release)"
   lane :release do
-    # Run gradle build for App Bundle
+    # Run gradle build
     gradle(
-      task: "bundle",
+      task: "assemble",
       build_type: "Release"
     )
 
-    # Upload AAB to Play Store
-    upload_to_play_store(
-      track: "production",
-      aab: "../build/app/outputs/bundle/release/app-release.aab"
+    # Distribute APK to Firebase App Distribution
+    firebase_app_distribution(
+      app: ENV["FIREBASE_APP_ID_ANDROID"],
+      testers: ENV["FIREBASE_TESTERS"] || "",
+      groups: ENV["FIREBASE_GROUPS"] || "",
+      release_notes: "Production release build from GitHub Actions CI/CD"
+    )
+  end
+
+  desc "Distribute the built APK to Firebase App Distribution"
+  lane :distribute do
+    firebase_app_distribution(
+      app: ENV["FIREBASE_APP_ID_ANDROID"],
+      apk_path: "../build/app/outputs/flutter-apk/app-release.apk",
+      testers: ENV["FIREBASE_TESTERS"] || "",
+      groups: ENV["FIREBASE_GROUPS"] || "",
+      release_notes: "Local release build"
     )
   end
 end
