@@ -20,4 +20,7 @@ class ApiConstants {
   static const profile = '/profile';
   static const registerFcmToken = '/notifications/register-token';
   static const unregisterFcmToken = '/notifications/unregister-token';
+  static const notifications = '/notifications';
+  static const notificationsUnreadCount = '/notifications/unread-count';
+  static String markNotificationRead(String id) => '/notifications/$id/read';
 }

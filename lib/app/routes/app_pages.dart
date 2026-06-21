@@ -25,6 +25,7 @@ import '../../modules/analytics/bindings/analytics_binding.dart';
 import '../../modules/analytics/views/analytics_dashboard_view.dart';
 import '../../modules/book_store/bindings/book_store_binding.dart';
 import '../../modules/book_store/views/book_store_dashboard_view.dart';
+import '../../modules/notifications/views/notification_inbox_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -97,6 +98,10 @@ class AppPages {
       name: Routes.BOOK_STORE,
       page: () => const BookStoreDashboardView(),
       binding: BookStoreBinding(),
+    ),
+    GetPage(
+      name: Routes.NOTIFICATIONS,
+      page: () => const NotificationInboxView(),
     ),
   ];
 }

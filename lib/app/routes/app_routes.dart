@@ -13,4 +13,5 @@ abstract class Routes {
   static const STUDY_MATERIALS = '/study-materials';
   static const PERFORMANCE = '/performance';
   static const BOOK_STORE = '/book-store';
+  static const NOTIFICATIONS = '/notifications';
 }

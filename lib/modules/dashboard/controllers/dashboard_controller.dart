@@ -51,6 +51,10 @@ class DashboardController extends GetxController {
       } else {
         errorMessage.value = response.data['message'] ?? 'Failed to load dashboard';
       }
+
+      if (Get.isRegistered<NotificationService>()) {
+        Get.find<NotificationService>().fetchUnreadCount();
+      }
     } catch (e) {
       errorMessage.value = 'Failed to connect to server';
     } finally {

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:education_app/core/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
@@ -154,42 +156,52 @@ class DashboardHomeView extends GetView<DashboardController> {
             color: Color(0xFF2C008F),
           ),
         ),
-        Stack(
-          children: [
-            IconButton(
-              icon: const Icon(
-                Icons.notifications_outlined,
-                color: Color(0xFF2C008F),
-                size: 26,
-              ),
-              onPressed: () {
-                AppToast.info(
-                  AppStrings.notificationSubtitle,
-                  title: AppStrings.notificationTitle,
-                );
-              },
-            ),
-            Positioned(
-              right: 6,
-              top: 6,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Colors.redAccent,
-                  shape: BoxShape.circle,
+        Obx(() {
+          final notifyService = Get.find<NotificationService>();
+          final count = notifyService.unreadCount.value;
+          return Stack(
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.notifications_outlined,
+                  color: Color(0xFF2C008F),
+                  size: 26,
                 ),
-                child: const Text(
-                  '3',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                onPressed: () {
+                  Get.toNamed(Routes.NOTIFICATIONS);
+                },
+              ),
+              if (count > 0)
+                Positioned(
+                  right: 6,
+                  top: 6,
+                  child: IgnorePointer(
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.redAccent,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$count',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ],
-        ),
+            ],
+          );
+        }),
       ],
     );
   }
@@ -659,43 +671,69 @@ class _BannerCarouselState extends State<BannerCarousel> {
                       fit: StackFit.expand,
                       children: [
                         // Image
-                        Image.network(
-                          banner.imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Color(0xFFE1BEE7),
-                                    Color(0xFFCE93D8),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+                        banner.imageUrl.startsWith('data:image')
+                            ? Image.memory(
+                                base64Decode(banner.imageUrl.split(',').last),
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xFFE1BEE7),
+                                          Color(0xFFCE93D8),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                    ),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.broken_image_rounded,
+                                        color: Colors.white,
+                                        size: 40,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              )
+                            : Image.network(
+                                banner.imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xFFE1BEE7),
+                                          Color(0xFFCE93D8),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                    ),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.broken_image_rounded,
+                                        color: Colors.white,
+                                        size: 40,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Container(
+                                    color: const Color(0xFFF5F5F5),
+                                    child: const Center(
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.brandPurple,
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.broken_image_rounded,
-                                  color: Colors.white,
-                                  size: 40,
-                                ),
-                              ),
-                            );
-                          },
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(
-                              color: const Color(0xFFF5F5F5),
-                              child: const Center(
-                                child: CircularProgressIndicator(
-                                  color: AppColors.brandPurple,
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
                         // Dark Gradient Overlay for title readability
                         Container(
                           decoration: BoxDecoration(

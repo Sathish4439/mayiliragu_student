@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../network/api_client.dart';
 import '../constants/api_constants.dart';
 import '../services/secure_storage_service.dart';
+import '../models/notification_model.dart';
 
 class NotificationService extends GetxService {
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
@@ -136,5 +137,48 @@ class NotificationService extends GetxService {
     } catch (e) {
       print('Failed to unregister FCM token: $e');
     }
+  }
+
+  // In-app notifications state
+  final RxInt unreadCount = 0.obs;
+
+  Future<List<NotificationModel>> fetchNotifications({int limit = 20, int offset = 0}) async {
+    try {
+      final response = await _apiClient.get(
+        ApiConstants.notifications,
+        queryParameters: {'limit': limit, 'offset': offset},
+      );
+      if (response.data != null && response.data['status'] == 'success') {
+        final List list = response.data['data'] ?? [];
+        return list.map((e) => NotificationModel.fromJson(e)).toList();
+      }
+    } catch (e) {
+      print('Failed to fetch notifications: $e');
+    }
+    return [];
+  }
+
+  Future<void> fetchUnreadCount() async {
+    try {
+      final response = await _apiClient.get(ApiConstants.notificationsUnreadCount);
+      if (response.data != null && response.data['status'] == 'success') {
+        unreadCount.value = response.data['data']['count'] ?? 0;
+      }
+    } catch (e) {
+      print('Failed to fetch unread count: $e');
+    }
+  }
+
+  Future<bool> markNotificationAsRead(String id) async {
+    try {
+      final response = await _apiClient.patch(ApiConstants.markNotificationRead(id));
+      if (response.data != null && response.data['status'] == 'success') {
+        await fetchUnreadCount(); // update local unread count
+        return true;
+      }
+    } catch (e) {
+      print('Failed to mark notification as read: $e');
+    }
+    return false;
   }
 }
