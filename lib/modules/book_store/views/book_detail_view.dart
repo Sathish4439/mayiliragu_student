@@ -87,7 +87,9 @@ class _BookDetailViewState extends State<BookDetailView> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        '${ApiConstants.baseUrl.replaceAll('/api', '')}${book.thumbnailUrl}',
+                        book.thumbnailUrl.startsWith('http://') || book.thumbnailUrl.startsWith('https://')
+                            ? book.thumbnailUrl
+                            : '${ApiConstants.baseUrl.replaceAll('/api', '')}${book.thumbnailUrl}',
                         height: 220,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => const Icon(Icons.book, size: 80, color: Colors.grey),

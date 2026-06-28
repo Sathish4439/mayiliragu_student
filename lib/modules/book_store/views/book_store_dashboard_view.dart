@@ -205,7 +205,9 @@ class _BookStoreDashboardViewState extends State<BookStoreDashboardView> with Si
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
-                      '${ApiConstants.baseUrl.replaceAll('/api', '')}${book.thumbnailUrl}',
+                      book.thumbnailUrl.startsWith('http://') || book.thumbnailUrl.startsWith('https://')
+                          ? book.thumbnailUrl
+                          : '${ApiConstants.baseUrl.replaceAll('/api', '')}${book.thumbnailUrl}',
                       width: 50,
                       height: 70,
                       fit: fitCover(book.thumbnailUrl),
@@ -465,7 +467,9 @@ class _BookStoreDashboardViewState extends State<BookStoreDashboardView> with Si
                 ),
                 child: Center(
                   child: Image.network(
-                    '${ApiConstants.baseUrl.replaceAll('/api', '')}${book.thumbnailUrl}',
+                    book.thumbnailUrl.startsWith('http://') || book.thumbnailUrl.startsWith('https://')
+                        ? book.thumbnailUrl
+                        : '${ApiConstants.baseUrl.replaceAll('/api', '')}${book.thumbnailUrl}',
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => const Icon(Icons.book, size: 40, color: Colors.grey),
                   ),
@@ -524,8 +528,11 @@ class _BookStoreDashboardViewState extends State<BookStoreDashboardView> with Si
     final result = await controller.downloadBookPdf(bookId);
     if (result != null) {
       final pdfUrl = result['pdfUrl'] as String;
-      final base = ApiConstants.baseUrl.replaceAll('/api', '');
-      final fullUrl = '$base$pdfUrl';
+      String fullUrl = pdfUrl;
+      if (!pdfUrl.startsWith('http://') && !pdfUrl.startsWith('https://')) {
+        final base = ApiConstants.baseUrl.replaceAll('/api', '');
+        fullUrl = '$base$pdfUrl';
+      }
       final uri = Uri.parse(fullUrl);
       try {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
